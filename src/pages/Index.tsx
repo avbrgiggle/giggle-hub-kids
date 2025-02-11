@@ -72,14 +72,15 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-muted/30 animate-fade-in">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-primary/10 to-secondary/10 py-16">
+      <div className="bg-accent text-white py-16">
         <div className="container">
-          <h1 className="text-4xl md:text-5xl font-bold text-center mb-6">
-            Discover Amazing Activities for Kids
-          </h1>
-          <p className="text-lg text-center text-muted-foreground mb-8">
-            Find and book the perfect activities for your children
-          </p>
+          <div className="flex flex-col items-center mb-8">
+            <img 
+              src="/lovable-uploads/ef0c0ba4-8c77-4009-8669-dec94b2ec9de.png" 
+              alt="Allegrow" 
+              className="w-64 mb-4"
+            />
+          </div>
 
           {/* Search Bar */}
           <div className="max-w-2xl mx-auto flex gap-4 mb-8">
@@ -87,17 +88,17 @@ const Index = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="Search activities..."
-                className="pl-10 h-12 rounded-full"
+                className="pl-10 h-12 rounded-full bg-white/90 border-0"
               />
             </div>
             <div className="relative flex-1">
               <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="Location..."
-                className="pl-10 h-12 rounded-full"
+                className="pl-10 h-12 rounded-full bg-white/90 border-0"
               />
             </div>
-            <Button size="lg" className="rounded-full h-12">
+            <Button size="lg" className="rounded-full h-12 bg-primary hover:bg-primary/90">
               <Filter className="mr-2" />
               Filters
             </Button>
@@ -105,7 +106,7 @@ const Index = () => {
 
           {/* Age Range Slider */}
           <div className="max-w-md mx-auto">
-            <p className="text-center mb-2">Age Range: {ageRange[0]} - {ageRange[1]} years</p>
+            <p className="text-center mb-2 text-white/90">Age Range: {ageRange[0]} - {ageRange[1]} years</p>
             <Slider
               defaultValue={[0, 18]}
               max={18}
@@ -160,7 +161,7 @@ const Index = () => {
                     <h3 className="text-lg font-semibold">{activity.title}</h3>
                   </div>
                   <div className="text-right">
-                    <p className="text-lg font-bold">
+                    <p className="text-lg font-bold text-primary">
                       {activity.price === 0 ? "Free" : `$${activity.price}`}
                     </p>
                   </div>
@@ -176,7 +177,7 @@ const Index = () => {
                     </span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 text-yellow-400" />
+                    <Star className="w-4 h-4 text-primary" />
                     <span className="text-sm">
                       {activity.rating} ({activity.reviews})
                     </span>
