@@ -78,7 +78,7 @@ const Index = () => {
             <img 
               src="/lovable-uploads/ef0c0ba4-8c77-4009-8669-dec94b2ec9de.png" 
               alt="Allegrow" 
-              className="w-64 mb-4"
+              className="w-96 mb-4" // Changed from w-64 to w-96 for larger size
             />
           </div>
 
