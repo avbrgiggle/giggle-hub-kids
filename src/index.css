@@ -32,11 +32,11 @@
   }
 
   body {
-    @apply bg-background text-foreground font-['Arial'];
+    @apply bg-background text-foreground font-['DM_Sans'];
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-['Arial'];
+    @apply font-['DM_Sans'];
   }
 }
 
