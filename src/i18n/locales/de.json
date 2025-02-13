@@ -1,0 +1,39 @@
+
+{
+  "nav": {
+    "login": "Registrieren / Anmelden"
+  },
+  "search": {
+    "activities": "Aktivitäten suchen...",
+    "location": "Standort...",
+    "filters": "Filter"
+  },
+  "ageRange": {
+    "label": "Altersgruppe:",
+    "years": "Jahre"
+  },
+  "categories": {
+    "all": "Alle",
+    "sports": "Sport",
+    "artsCrafts": "Kunst & Handwerk",
+    "education": "Bildung",
+    "music": "Musik",
+    "dance": "Tanz",
+    "science": "Wissenschaft",
+    "nature": "Natur"
+  },
+  "activity": {
+    "ages": "Alter",
+    "free": "Kostenlos",
+    "reviews": "Bewertungen",
+    "saved": "Aktivität gespeichert!",
+    "savedDesc": "Sie finden diese in Ihren gespeicherten Aktivitäten."
+  },
+  "languages": {
+    "en": "Englisch",
+    "pt": "Portugiesisch",
+    "es": "Spanisch",
+    "fr": "Französisch",
+    "de": "Deutsch"
+  }
+}
