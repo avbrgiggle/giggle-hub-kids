@@ -13,6 +13,8 @@ const DUMMY_ACTIVITIES = [
     title: "Kids Art & Craft Workshop",
     description: "Fun creative workshop where kids can explore their artistic side",
     image: "https://images.unsplash.com/photo-1472396961693-142e6e269027",
+    companyLogo: "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b",
+    companyName: "Creative Kids Co",
     ageRange: "5-12",
     price: 25,
     location: "Creative Studio, Downtown",
@@ -25,6 +27,8 @@ const DUMMY_ACTIVITIES = [
     title: "Swimming Lessons for Beginners",
     description: "Professional swimming lessons for children in a safe environment",
     image: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7",
+    companyLogo: "https://images.unsplash.com/photo-1483058712412-4245e9b90334",
+    companyName: "Splash Academy",
     ageRange: "4-15",
     price: 30,
     location: "Splash Pool Center",
@@ -37,6 +41,8 @@ const DUMMY_ACTIVITIES = [
     title: "Coding for Kids",
     description: "Introduction to programming concepts through fun projects",
     image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81",
+    companyLogo: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e",
+    companyName: "Tech Kids Lab",
     ageRange: "8-16",
     price: 0,
     location: "Tech Hub Center",
@@ -166,12 +172,22 @@ const Index = () => {
                 </button>
               </div>
               <div className="activity-content">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <Badge variant="secondary" className="mb-2">
-                      Ages {activity.ageRange}
-                    </Badge>
-                    <h3 className="text-lg font-semibold">{activity.title}</h3>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-full overflow-hidden border border-muted flex-shrink-0">
+                      <img
+                        src={activity.companyLogo}
+                        alt={activity.companyName}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <Badge variant="secondary" className="mb-1">
+                        Ages {activity.ageRange}
+                      </Badge>
+                      <h3 className="text-lg font-semibold">{activity.title}</h3>
+                      <p className="text-xs text-muted-foreground">{activity.companyName}</p>
+                    </div>
                   </div>
                   <div className="text-right">
                     <p className="text-lg font-bold text-primary">
