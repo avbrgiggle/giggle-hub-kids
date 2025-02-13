@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Search, MapPin, Filter, Heart, Star, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -157,15 +157,22 @@ const Index = () => {
         {/* Activities Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {DUMMY_ACTIVITIES.map((activity) => (
-            <div key={activity.id} className="activity-card animate-slide-up">
+            <Link 
+              to={`/activity/${activity.id}`} 
+              key={activity.id} 
+              className="activity-card animate-slide-up group"
+            >
               <div className="activity-image">
                 <img
                   src={activity.image}
                   alt={activity.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <button
-                  onClick={() => handleSave(activity.id)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleSave(activity.id);
+                  }}
                   className="absolute top-4 right-4 p-2 bg-white/90 rounded-full hover:bg-white transition-colors"
                 >
                   <Heart className="w-5 h-5 text-primary" />
@@ -213,7 +220,7 @@ const Index = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
