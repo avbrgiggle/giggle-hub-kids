@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Search, MapPin, Filter, Heart, Star } from "lucide-react";
+import { Search, MapPin, Filter, Heart, Star, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
@@ -75,10 +75,23 @@ const Index = () => {
       <div className="bg-accent text-white py-16">
         <div className="container">
           <div className="flex flex-col items-center mb-8">
+            <div className="w-full flex justify-end mb-4">
+              <Button 
+                variant="ghost" 
+                className="text-white hover:bg-white/20"
+                onClick={() => toast({
+                  title: "Coming Soon",
+                  description: "Sign up and login functionality will be available soon!",
+                })}
+              >
+                <LogIn className="w-4 h-4 mr-2" />
+                Sign Up / Log In
+              </Button>
+            </div>
             <img 
               src="/lovable-uploads/ef0c0ba4-8c77-4009-8669-dec94b2ec9de.png" 
               alt="Allegrow" 
-              className="w-96 mb-4" // Changed from w-64 to w-96 for larger size
+              className="w-96 mb-4"
             />
           </div>
 
