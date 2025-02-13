@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
+import { LanguageSelector } from "@/components/LanguageSelector";
 
 const DUMMY_ACTIVITIES = [
   {
@@ -67,11 +69,12 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [ageRange, setAgeRange] = useState([0, 18]);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleSave = (activityId: number) => {
     toast({
-      title: "Activity Saved!",
-      description: "You can find this in your saved activities.",
+      title: t("activity.saved"),
+      description: t("activity.savedDesc"),
     });
   };
 
@@ -81,7 +84,8 @@ const Index = () => {
       <div className="bg-accent text-white py-16">
         <div className="container">
           <div className="flex flex-col items-center mb-8">
-            <div className="w-full flex justify-end mb-4">
+            <div className="w-full flex justify-end gap-4 mb-4">
+              <LanguageSelector />
               <Button 
                 variant="ghost" 
                 className="text-white hover:bg-white/20"
@@ -91,7 +95,7 @@ const Index = () => {
                 })}
               >
                 <LogIn className="w-4 h-4 mr-2" />
-                Sign Up / Log In
+                {t("nav.login")}
               </Button>
             </div>
             <img 
@@ -106,26 +110,28 @@ const Index = () => {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search activities..."
+                placeholder={t("search.activities")}
                 className="pl-10 h-12 rounded-full bg-white/90 border-0"
               />
             </div>
             <div className="relative flex-1">
               <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Location..."
+                placeholder={t("search.location")}
                 className="pl-10 h-12 rounded-full bg-white/90 border-0"
               />
             </div>
             <Button size="lg" className="rounded-full h-12 bg-primary hover:bg-primary/90">
               <Filter className="mr-2" />
-              Filters
+              {t("search.filters")}
             </Button>
           </div>
 
           {/* Age Range Slider */}
           <div className="max-w-md mx-auto">
-            <p className="text-center mb-2 text-white/90">Age Range: {ageRange[0]} - {ageRange[1]} years</p>
+            <p className="text-center mb-2 text-white/90">
+              {t("ageRange.label")} {ageRange[0]} - {ageRange[1]} {t("ageRange.years")}
+            </p>
             <Slider
               defaultValue={[0, 18]}
               max={18}

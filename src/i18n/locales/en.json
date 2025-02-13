@@ -1,0 +1,39 @@
+
+{
+  "nav": {
+    "login": "Sign Up / Log In"
+  },
+  "search": {
+    "activities": "Search activities...",
+    "location": "Location...",
+    "filters": "Filters"
+  },
+  "ageRange": {
+    "label": "Age Range:",
+    "years": "years"
+  },
+  "categories": {
+    "all": "All",
+    "sports": "Sports",
+    "artsCrafts": "Arts & Crafts",
+    "education": "Education",
+    "music": "Music",
+    "dance": "Dance",
+    "science": "Science",
+    "nature": "Nature"
+  },
+  "activity": {
+    "ages": "Ages",
+    "free": "Free",
+    "reviews": "reviews",
+    "saved": "Activity Saved!",
+    "savedDesc": "You can find this in your saved activities."
+  },
+  "languages": {
+    "en": "English",
+    "pt": "Portuguese",
+    "es": "Spanish",
+    "fr": "French",
+    "de": "German"
+  }
+}
