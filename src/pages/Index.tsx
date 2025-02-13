@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, MapPin, Filter, Heart, Star, LogIn } from "lucide-react";
@@ -71,6 +72,13 @@ const Index = () => {
   const { toast } = useToast();
   const { t } = useTranslation();
 
+  const handleAgeRangeChange = (newValue: number[]) => {
+    // Ensure minimum value doesn't exceed maximum value
+    if (newValue[0] <= newValue[1]) {
+      setAgeRange(newValue);
+    }
+  };
+
   const handleSave = (activityId: number) => {
     toast({
       title: t("activity.saved"),
@@ -134,10 +142,12 @@ const Index = () => {
             </p>
             <Slider
               defaultValue={[0, 18]}
+              min={0}
               max={18}
               step={1}
               value={ageRange}
-              onValueChange={setAgeRange}
+              minStepsBetweenThumbs={1}
+              onValueChange={handleAgeRangeChange}
               className="my-4"
             />
           </div>
