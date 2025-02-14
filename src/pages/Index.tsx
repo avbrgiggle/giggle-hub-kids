@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Search, MapPin, Filter, Heart, Star, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,9 +70,9 @@ const Index = () => {
   const [ageRange, setAgeRange] = useState([0, 18]);
   const { toast } = useToast();
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const handleAgeRangeChange = (newValue: number[]) => {
-    // Ensure minimum value doesn't exceed maximum value
     if (newValue[0] <= newValue[1]) {
       setAgeRange(newValue);
     }
@@ -88,7 +87,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-muted/30 animate-fade-in">
-      {/* Hero Section */}
       <div className="bg-accent text-white py-16">
         <div className="container">
           <div className="flex flex-col items-center mb-8">
@@ -97,10 +95,7 @@ const Index = () => {
               <Button 
                 variant="ghost" 
                 className="text-white hover:bg-white/20"
-                onClick={() => toast({
-                  title: "Coming Soon",
-                  description: "Sign up and login functionality will be available soon!",
-                })}
+                onClick={() => navigate("/login")}
               >
                 <LogIn className="w-4 h-4 mr-2" />
                 {t("nav.login")}
@@ -113,7 +108,6 @@ const Index = () => {
             />
           </div>
 
-          {/* Search Bar */}
           <div className="max-w-2xl mx-auto flex gap-4 mb-8">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
@@ -135,7 +129,6 @@ const Index = () => {
             </Button>
           </div>
 
-          {/* Age Range Slider */}
           <div className="max-w-md mx-auto">
             <p className="text-center mb-2 text-white/90">
               {t("ageRange.label")} {ageRange[0]} - {ageRange[1]} {t("ageRange.years")}
@@ -154,7 +147,6 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Categories */}
       <div className="container py-8">
         <div className="flex gap-2 overflow-x-auto pb-4 mb-8">
           {Categories.map((category) => (
@@ -170,7 +162,6 @@ const Index = () => {
           ))}
         </div>
 
-        {/* Activities Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {DUMMY_ACTIVITIES.map((activity) => (
             <Link 
