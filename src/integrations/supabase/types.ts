@@ -9,9 +9,100 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      bookings: {
+      activities: {
+        Row: {
+          age_range: string
+          capacity: number
+          category: string
+          created_at: string
+          description: string
+          duration: unknown
+          id: string
+          image_url: string | null
+          location: string
+          price: number
+          provider_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          age_range: string
+          capacity: number
+          category: string
+          created_at?: string
+          description: string
+          duration: unknown
+          id?: string
+          image_url?: string | null
+          location: string
+          price: number
+          provider_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          age_range?: string
+          capacity?: number
+          category?: string
+          created_at?: string
+          description?: string
+          duration?: unknown
+          id?: string
+          image_url?: string | null
+          location?: string
+          price?: number
+          provider_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activities_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      activity_dates: {
         Row: {
           activity_id: string
+          created_at: string
+          id: string
+          spots_left: number
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          activity_id: string
+          created_at?: string
+          id?: string
+          spots_left: number
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          activity_id?: string
+          created_at?: string
+          id?: string
+          spots_left?: number
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_dates_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bookings: {
+        Row: {
+          activity_date_id: string | null
           booking_date: string
           child_id: string
           created_at: string
@@ -21,7 +112,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          activity_id: string
+          activity_date_id?: string | null
           booking_date: string
           child_id: string
           created_at?: string
@@ -31,7 +122,7 @@ export type Database = {
           user_id: string
         }
         Update: {
-          activity_id?: string
+          activity_date_id?: string | null
           booking_date?: string
           child_id?: string
           created_at?: string
@@ -41,6 +132,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "bookings_activity_date_id_fkey"
+            columns: ["activity_date_id"]
+            isOneToOne: false
+            referencedRelation: "activity_dates"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "bookings_child_id_fkey"
             columns: ["child_id"]
@@ -166,6 +264,7 @@ export type Database = {
           full_name: string | null
           id: string
           phone: string | null
+          role: string | null
           updated_at: string
         }
         Insert: {
@@ -174,6 +273,7 @@ export type Database = {
           full_name?: string | null
           id: string
           phone?: string | null
+          role?: string | null
           updated_at?: string
         }
         Update: {
@@ -182,6 +282,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           phone?: string | null
+          role?: string | null
           updated_at?: string
         }
         Relationships: []

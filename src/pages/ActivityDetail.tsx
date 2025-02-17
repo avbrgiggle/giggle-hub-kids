@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { 
   MapPin, 
   Calendar, 
@@ -11,65 +11,225 @@ import {
   ChevronLeft,
   Building,
   FileText,
-  Mail
+  Mail,
+  Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import type { Activity, ActivityDate, Child, Message } from "@/types/database.types";
+import { format, parseISO } from "date-fns";
 
 const ActivityDetail = () => {
   const { id } = useParams();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const { toast } = useToast();
-  const [selectedDate, setSelectedDate] = useState<Date>();
+  const [activity, setActivity] = useState<Activity | null>(null);
+  const [activityDates, setActivityDates] = useState<ActivityDate[]>([]);
+  const [selectedDate, setSelectedDate] = useState<ActivityDate | null>(null);
+  const [children, setChildren] = useState<Child[]>([]);
+  const [selectedChild, setSelectedChild] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+  const [showBookingDialog, setShowBookingDialog] = useState(false);
+  const [showMessageDialog, setShowMessageDialog] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
 
-  // Simulated activity data (in a real app, this would come from an API)
-  const activity = {
-    id: 1,
-    title: "Kids Art & Craft Workshop",
-    description: "Fun creative workshop where kids can explore their artistic side through various art mediums including painting, drawing, and crafts. Professional instructors guide children through age-appropriate projects that enhance creativity and fine motor skills.",
-    image: "https://images.unsplash.com/photo-1472396961693-142e6e269027",
-    companyLogo: "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b",
-    companyName: "Creative Kids Co",
-    companyDescription: "Creative Kids Co has been nurturing young artists since 2015. Our team of experienced art educators is passionate about introducing children to the world of art in a fun and engaging way.",
-    ageRange: "5-12",
-    price: 25,
-    duration: "2 hours",
-    location: "Creative Studio, 123 Art Street, Downtown",
-    category: "Arts & Crafts",
-    rating: 4.8,
-    reviews: [
-      { id: 1, user: "Sarah M.", rating: 5, comment: "My daughter loved the workshop! The instructors were patient and encouraging." },
-      { id: 2, user: "John D.", rating: 4, comment: "Great experience, would recommend to other parents." }
-    ],
-    totalBookings: 156,
-    coordinates: { lat: 40.7128, lng: -74.0060 }, // Example coordinates
-    terms: "Cancellations must be made 24 hours in advance for a full refund. No refunds for no-shows or late cancellations.",
-    capacity: 12,
-    remainingSpots: 5
+  useEffect(() => {
+    fetchActivityDetails();
+    if (user) {
+      fetchChildren();
+      fetchMessages();
+    }
+  }, [id, user]);
+
+  const fetchActivityDetails = async () => {
+    try {
+      // Fetch activity details
+      const { data: activityData, error: activityError } = await supabase
+        .from("activities")
+        .select(`
+          *,
+          provider:profiles(*)
+        `)
+        .eq("id", id)
+        .single();
+
+      if (activityError) throw activityError;
+      setActivity(activityData);
+
+      // Fetch activity dates
+      const { data: datesData, error: datesError } = await supabase
+        .from("activity_dates")
+        .select("*")
+        .eq("activity_id", id)
+        .gt("start_time", new Date().toISOString())
+        .order("start_time");
+
+      if (datesError) throw datesError;
+      setActivityDates(datesData);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleBook = () => {
-    toast({
-      title: "Booking Initiated",
-      description: "Booking functionality coming soon!",
-    });
+  const fetchChildren = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from("children")
+        .select("*")
+        .eq("parent_id", user.id);
+
+      if (error) throw error;
+      setChildren(data);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    }
   };
 
-  const handleContactProvider = () => {
-    toast({
-      title: "Contact Request Sent",
-      description: "The activity provider will get back to you soon!",
-    });
+  const fetchMessages = async () => {
+    if (!user || !activity) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from("messages")
+        .select(`
+          *,
+          sender:profiles(*),
+          receiver:profiles(*)
+        `)
+        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+        .eq("receiver_id", activity.provider_id)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setMessages(data);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    }
   };
+
+  const handleBook = async () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    if (!selectedDate || !selectedChild) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please select a date and child for the booking.",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase.from("bookings").insert({
+        user_id: user.id,
+        activity_date_id: selectedDate.id,
+        child_id: selectedChild,
+        booking_date: new Date().toISOString(),
+        status: "pending",
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Booking submitted successfully!",
+      });
+      
+      setShowBookingDialog(false);
+      fetchActivityDetails(); // Refresh activity dates
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!user || !activity || !message.trim()) return;
+
+    try {
+      const { error } = await supabase.from("messages").insert({
+        sender_id: user.id,
+        receiver_id: activity.provider_id,
+        content: message.trim(),
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Message sent successfully!",
+      });
+      
+      setMessage("");
+      setShowMessageDialog(false);
+      fetchMessages();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!activity) {
+    return (
+      <div className="container mx-auto py-8 px-4 text-center">
+        <h1 className="text-2xl font-bold mb-4">Activity not found</h1>
+        <Link to="/" className="text-primary hover:underline">
+          Return to home
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-muted/30 pb-12">
       {/* Header Image */}
       <div className="relative h-[40vh] bg-accent">
         <img 
-          src={activity.image} 
+          src={activity.image_url || "https://images.unsplash.com/photo-1472396961693-142e6e269027"}
           alt={activity.title}
           className="w-full h-full object-cover opacity-50"
         />
@@ -94,17 +254,17 @@ const ActivityDetail = () => {
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-16 h-16 rounded-full overflow-hidden border border-muted">
                   <img
-                    src={activity.companyLogo}
-                    alt={activity.companyName}
+                    src={activity.provider?.avatar_url || "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b"}
+                    alt={activity.provider?.full_name || "Provider"}
                     className="w-full h-full object-cover"
                   />
                 </div>
                 <div>
                   <Badge variant="secondary" className="mb-2">
-                    Ages {activity.ageRange}
+                    Ages {activity.age_range}
                   </Badge>
                   <h1 className="text-2xl font-bold">{activity.title}</h1>
-                  <p className="text-muted-foreground">{activity.companyName}</p>
+                  <p className="text-muted-foreground">{activity.provider?.full_name}</p>
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
@@ -114,15 +274,15 @@ const ActivityDetail = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-muted-foreground" />
-                  <span>{activity.remainingSpots} spots left</span>
+                  <span>{activity.capacity} capacity</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Star className="w-4 h-4 text-primary" />
-                  <span>{activity.rating} ({activity.reviews.length} reviews)</span>
+                  <MapPin className="w-4 h-4 text-muted-foreground" />
+                  <span>{activity.location}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Building className="w-4 h-4 text-muted-foreground" />
-                  <span>{activity.totalBookings} bookings</span>
+                  <span>{activity.category}</span>
                 </div>
               </div>
             </div>
@@ -131,9 +291,8 @@ const ActivityDetail = () => {
             <Tabs defaultValue="description" className="bg-white rounded-xl shadow-lg">
               <TabsList className="w-full border-b">
                 <TabsTrigger value="description">Description</TabsTrigger>
-                <TabsTrigger value="company">Company</TabsTrigger>
-                <TabsTrigger value="reviews">Reviews</TabsTrigger>
-                <TabsTrigger value="terms">Terms & Conditions</TabsTrigger>
+                <TabsTrigger value="dates">Available Dates</TabsTrigger>
+                <TabsTrigger value="messages">Messages</TabsTrigger>
               </TabsList>
               
               <TabsContent value="description" className="p-6">
@@ -141,29 +300,86 @@ const ActivityDetail = () => {
                 <p className="text-muted-foreground">{activity.description}</p>
               </TabsContent>
               
-              <TabsContent value="company" className="p-6">
-                <h3 className="text-lg font-semibold mb-4">About {activity.companyName}</h3>
-                <p className="text-muted-foreground">{activity.companyDescription}</p>
-              </TabsContent>
-              
-              <TabsContent value="reviews" className="p-6">
+              <TabsContent value="dates" className="p-6">
                 <div className="space-y-4">
-                  {activity.reviews.map((review) => (
-                    <div key={review.id} className="border-b pb-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Star className="w-4 h-4 text-primary" />
-                        <span className="font-semibold">{review.rating}/5</span>
-                        <span className="text-muted-foreground">by {review.user}</span>
+                  {activityDates.length === 0 ? (
+                    <p className="text-muted-foreground">No upcoming dates available.</p>
+                  ) : (
+                    activityDates.map((date) => (
+                      <div key={date.id} className="flex items-center justify-between border-b pb-4">
+                        <div>
+                          <p className="font-medium">{format(parseISO(date.start_time), "PPP")}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {format(parseISO(date.start_time), "p")} - {date.spots_left} spots left
+                          </p>
+                        </div>
+                        <Button
+                          onClick={() => {
+                            setSelectedDate(date);
+                            setShowBookingDialog(true);
+                          }}
+                          disabled={date.spots_left === 0}
+                        >
+                          Book Now
+                        </Button>
                       </div>
-                      <p className="text-muted-foreground">{review.comment}</p>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </TabsContent>
               
-              <TabsContent value="terms" className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Terms & Cancellation Policy</h3>
-                <p className="text-muted-foreground">{activity.terms}</p>
+              <TabsContent value="messages" className="p-6">
+                {user ? (
+                  <>
+                    <div className="space-y-4 mb-6">
+                      {messages.map((msg) => (
+                        <div
+                          key={msg.id}
+                          className={`flex gap-4 ${
+                            msg.sender_id === user.id ? "flex-row-reverse" : ""
+                          }`}
+                        >
+                          <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                            <img
+                              src={msg.sender?.avatar_url || "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b"}
+                              alt={msg.sender?.full_name || "User"}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div
+                            className={`rounded-lg p-3 max-w-[80%] ${
+                              msg.sender_id === user.id
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-muted"
+                            }`}
+                          >
+                            <p className="text-sm font-medium mb-1">
+                              {msg.sender?.full_name}
+                            </p>
+                            <p className="text-sm">{msg.content}</p>
+                            <p className="text-xs opacity-70 mt-1">
+                              {format(parseISO(msg.created_at), "Pp")}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <Button
+                      onClick={() => setShowMessageDialog(true)}
+                      className="w-full"
+                    >
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      Send Message
+                    </Button>
+                  </>
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-muted-foreground mb-4">
+                      Please log in to send messages to the provider.
+                    </p>
+                    <Button onClick={() => navigate("/login")}>Log In</Button>
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </div>
@@ -174,31 +390,26 @@ const ActivityDetail = () => {
             <div className="bg-white rounded-xl p-6 shadow-lg">
               <p className="text-2xl font-bold text-primary mb-4">
                 ${activity.price}
-                <span className="text-sm text-muted-foreground font-normal"> per person</span>
+                <span className="text-sm text-muted-foreground font-normal"> per child</span>
               </p>
               
-              <div className="mb-6">
-                <h3 className="font-semibold mb-2">Select Date</h3>
-                <CalendarComponent
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  className="rounded-md border"
-                />
+              <div className="space-y-4">
+                <Button 
+                  className="w-full"
+                  onClick={() => setShowBookingDialog(true)}
+                >
+                  Book Now
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => setShowMessageDialog(true)}
+                >
+                  <Mail className="w-4 h-4 mr-2" />
+                  Contact Provider
+                </Button>
               </div>
-
-              <Button className="w-full mb-4" onClick={handleBook}>
-                Book Now
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={handleContactProvider}
-              >
-                <Mail className="w-4 h-4 mr-2" />
-                Contact Provider
-              </Button>
             </div>
 
             {/* Location Card */}
@@ -208,15 +419,130 @@ const ActivityDetail = () => {
                 <MapPin className="w-5 h-5 text-primary mt-1" />
                 <div>
                   <p className="font-medium">{activity.location}</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Map integration coming soon!
-                  </p>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Booking Dialog */}
+      <Dialog open={showBookingDialog} onOpenChange={setShowBookingDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Book Activity</DialogTitle>
+            <DialogDescription>
+              Select a child and confirm your booking
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {!user ? (
+              <div className="text-center">
+                <p className="text-muted-foreground mb-4">
+                  Please log in to book this activity
+                </p>
+                <Button onClick={() => navigate("/login")}>Log In</Button>
+              </div>
+            ) : (
+              <>
+                {children.length === 0 ? (
+                  <div className="text-center">
+                    <p className="text-muted-foreground mb-4">
+                      Add a child to your profile to book activities
+                    </p>
+                    <Button onClick={() => navigate("/profile")}>
+                      Go to Profile
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      <Label>Select Child</Label>
+                      <Select
+                        value={selectedChild}
+                        onValueChange={setSelectedChild}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a child" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {children.map((child) => (
+                            <SelectItem key={child.id} value={child.id}>
+                              {child.first_name} {child.last_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {selectedDate && (
+                      <div className="space-y-2">
+                        <Label>Selected Date</Label>
+                        <p className="text-sm">
+                          {format(parseISO(selectedDate.start_time), "PPP")} at{" "}
+                          {format(parseISO(selectedDate.start_time), "p")}
+                        </p>
+                      </div>
+                    )}
+
+                    <Button
+                      className="w-full"
+                      onClick={handleBook}
+                      disabled={!selectedDate || !selectedChild}
+                    >
+                      Confirm Booking
+                    </Button>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Message Dialog */}
+      <Dialog open={showMessageDialog} onOpenChange={setShowMessageDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Send Message</DialogTitle>
+            <DialogDescription>
+              Send a message to the activity provider
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {!user ? (
+              <div className="text-center">
+                <p className="text-muted-foreground mb-4">
+                  Please log in to send messages
+                </p>
+                <Button onClick={() => navigate("/login")}>Log In</Button>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Label>Message</Label>
+                  <Textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Type your message here..."
+                    rows={4}
+                  />
+                </div>
+
+                <Button
+                  className="w-full"
+                  onClick={handleSendMessage}
+                  disabled={!message.trim()}
+                >
+                  Send Message
+                </Button>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
