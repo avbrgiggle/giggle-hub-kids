@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -42,15 +41,28 @@ export default function ProfilePage() {
 
   const fetchProfileAndChildren = async () => {
     try {
-      // Fetch profile
+      // Fetch profile with type assertion for role
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
-        .select("*")
+        .select(`
+          id,
+          full_name,
+          avatar_url,
+          phone,
+          role,
+          created_at,
+          updated_at
+        `)
         .eq("id", user?.id)
         .single();
 
       if (profileError) throw profileError;
-      setProfile(profileData);
+      // Ensure role is of the correct type
+      if (profileData && (profileData.role === 'parent' || profileData.role === 'provider')) {
+        setProfile(profileData);
+      } else {
+        throw new Error('Invalid role type');
+      }
 
       // Fetch children
       const { data: childrenData, error: childrenError } = await supabase

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { 
@@ -54,20 +53,38 @@ const ActivityDetail = () => {
 
   const fetchActivityDetails = async () => {
     try {
-      // Fetch activity details
       const { data: activityData, error: activityError } = await supabase
         .from("activities")
         .select(`
-          *,
-          provider:profiles(*)
+          id,
+          provider_id,
+          title,
+          description,
+          image_url,
+          location,
+          category,
+          age_range,
+          capacity,
+          price,
+          duration,
+          created_at,
+          updated_at,
+          provider:profiles(
+            id,
+            full_name,
+            avatar_url,
+            phone,
+            role,
+            created_at,
+            updated_at
+          )
         `)
         .eq("id", id)
         .single();
 
       if (activityError) throw activityError;
-      setActivity(activityData);
+      setActivity(activityData ? { ...activityData, duration: String(activityData.duration) } : null);
 
-      // Fetch activity dates
       const { data: datesData, error: datesError } = await supabase
         .from("activity_dates")
         .select("*")
@@ -115,16 +132,39 @@ const ActivityDetail = () => {
       const { data, error } = await supabase
         .from("messages")
         .select(`
-          *,
-          sender:profiles(*),
-          receiver:profiles(*)
+          id,
+          sender_id,
+          receiver_id,
+          booking_id,
+          content,
+          read,
+          created_at,
+          updated_at,
+          sender:sender_id(
+            id,
+            full_name,
+            avatar_url,
+            phone,
+            role,
+            created_at,
+            updated_at
+          ),
+          receiver:receiver_id(
+            id,
+            full_name,
+            avatar_url,
+            phone,
+            role,
+            created_at,
+            updated_at
+          )
         `)
         .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
         .eq("receiver_id", activity.provider_id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setMessages(data);
+      setMessages(data || []);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -166,7 +206,7 @@ const ActivityDetail = () => {
       });
       
       setShowBookingDialog(false);
-      fetchActivityDetails(); // Refresh activity dates
+      fetchActivityDetails();
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -226,7 +266,6 @@ const ActivityDetail = () => {
 
   return (
     <div className="min-h-screen bg-muted/30 pb-12">
-      {/* Header Image */}
       <div className="relative h-[40vh] bg-accent">
         <img 
           src={activity.image_url || "https://images.unsplash.com/photo-1472396961693-142e6e269027"}
@@ -244,12 +283,9 @@ const ActivityDetail = () => {
         </Link>
       </div>
 
-      {/* Content */}
       <div className="container max-w-6xl mx-auto -mt-20 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Main Content */}
           <div className="md:col-span-2 space-y-8">
-            {/* Activity Header */}
             <div className="bg-white rounded-xl p-6 shadow-lg">
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-16 h-16 rounded-full overflow-hidden border border-muted">
@@ -287,7 +323,6 @@ const ActivityDetail = () => {
               </div>
             </div>
 
-            {/* Tabs */}
             <Tabs defaultValue="description" className="bg-white rounded-xl shadow-lg">
               <TabsList className="w-full border-b">
                 <TabsTrigger value="description">Description</TabsTrigger>
@@ -384,9 +419,7 @@ const ActivityDetail = () => {
             </Tabs>
           </div>
 
-          {/* Booking Sidebar */}
           <div className="space-y-6">
-            {/* Booking Card */}
             <div className="bg-white rounded-xl p-6 shadow-lg">
               <p className="text-2xl font-bold text-primary mb-4">
                 ${activity.price}
@@ -412,7 +445,6 @@ const ActivityDetail = () => {
               </div>
             </div>
 
-            {/* Location Card */}
             <div className="bg-white rounded-xl p-6 shadow-lg">
               <h3 className="font-semibold mb-4">Location</h3>
               <div className="flex items-start gap-2">
@@ -426,7 +458,6 @@ const ActivityDetail = () => {
         </div>
       </div>
 
-      {/* Booking Dialog */}
       <Dialog open={showBookingDialog} onOpenChange={setShowBookingDialog}>
         <DialogContent>
           <DialogHeader>
@@ -501,7 +532,6 @@ const ActivityDetail = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Message Dialog */}
       <Dialog open={showMessageDialog} onOpenChange={setShowMessageDialog}>
         <DialogContent>
           <DialogHeader>
