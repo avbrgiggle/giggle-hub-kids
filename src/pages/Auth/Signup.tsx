@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,25 +21,75 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useTranslation } from "react-i18next";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function Signup() {
   const [formData, setFormData] = useState({
     fullName: "",
-    username: "",
     email: "",
     password: "",
     phone: "",
     location: "",
     communicationPreference: "",
-    referralCode: "",
-    paymentMethod: "",
     agreeToTerms: false,
   });
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement signup logic
-    console.log("Signup attempt", formData);
+    if (!formData.agreeToTerms) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please agree to the terms and conditions",
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.fullName,
+          },
+        },
+      });
+
+      if (signUpError) throw signUpError;
+
+      // After successful signup, create the profile
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .insert([
+          {
+            full_name: formData.fullName,
+            phone: formData.phone,
+          },
+        ]);
+
+      if (profileError) throw profileError;
+
+      toast({
+        title: "Success",
+        description: "Your account has been created successfully",
+      });
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string | boolean) => {
@@ -60,7 +110,6 @@ export default function Signup() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Mandatory Fields */}
             <div className="space-y-4">
               <h3 className="font-medium">Required Information</h3>
               <div className="grid gap-4 md:grid-cols-2">
@@ -70,15 +119,6 @@ export default function Signup() {
                     id="fullName"
                     value={formData.fullName}
                     onChange={(e) => handleInputChange("fullName", e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="username">Username</Label>
-                  <Input
-                    id="username"
-                    value={formData.username}
-                    onChange={(e) => handleInputChange("username", e.target.value)}
                     required
                   />
                 </div>
@@ -112,55 +152,9 @@ export default function Signup() {
                     required
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="location">Location (City/Postal Code)</Label>
-                  <Input
-                    id="location"
-                    value={formData.location}
-                    onChange={(e) => handleInputChange("location", e.target.value)}
-                    required
-                  />
-                </div>
               </div>
             </div>
 
-            {/* Optional Fields */}
-            <div className="space-y-4 pt-4">
-              <h3 className="font-medium">Additional Information (Optional)</h3>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="communication">
-                    Preferred Communication Method
-                  </Label>
-                  <Select
-                    onValueChange={(value) =>
-                      handleInputChange("communicationPreference", value)
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select preference" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="email">Email</SelectItem>
-                      <SelectItem value="sms">SMS</SelectItem>
-                      <SelectItem value="app">App Notifications</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="referral">Referral Code</Label>
-                  <Input
-                    id="referral"
-                    value={formData.referralCode}
-                    onChange={(e) =>
-                      handleInputChange("referralCode", e.target.value)
-                    }
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Terms and Conditions */}
             <div className="space-y-4">
               <div className="flex items-start space-x-2">
                 <Checkbox
@@ -178,18 +172,17 @@ export default function Signup() {
                   I agree to the{" "}
                   <Link to="/terms" className="text-primary hover:underline">
                     Terms of Use
-                  </Link>
-                  ,{" "}
+                  </Link>{" "}
+                  and{" "}
                   <Link to="/privacy" className="text-primary hover:underline">
                     Privacy Policy
                   </Link>
-                  , and the use of cookies for a better browsing experience.
                 </Label>
               </div>
             </div>
 
-            <Button type="submit" className="w-full">
-              Create Account
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Creating Account..." : "Create Account"}
             </Button>
           </form>
         </CardContent>
