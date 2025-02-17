@@ -8,6 +8,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/Index";
 import Login from "./pages/Auth/Login";
 import Signup from "./pages/Auth/Signup";
+import ProfilePage from "./pages/Profile/ProfilePage";
 import ActivityDetail from "./pages/ActivityDetail";
 import NotFound from "./pages/NotFound";
 import "./i18n/config";
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/activity/:id" element={<ActivityDetail />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
