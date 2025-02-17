@@ -52,7 +52,8 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      const { error: signUpError } = await supabase.auth.signUp({
+      // First, sign up the user
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
@@ -63,16 +64,19 @@ export default function Signup() {
       });
 
       if (signUpError) throw signUpError;
+      
+      if (!signUpData.user?.id) {
+        throw new Error("User ID not found after signup");
+      }
 
-      // After successful signup, create the profile
+      // After successful signup, create the profile with the user's ID
       const { error: profileError } = await supabase
         .from("profiles")
-        .insert([
-          {
-            full_name: formData.fullName,
-            phone: formData.phone,
-          },
-        ]);
+        .insert({
+          id: signUpData.user.id,
+          full_name: formData.fullName,
+          phone: formData.phone,
+        });
 
       if (profileError) throw profileError;
 
