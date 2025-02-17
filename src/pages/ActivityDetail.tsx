@@ -24,7 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import type { Activity, ActivityDate, Child, Message } from "@/types/database.types";
+import type { Activity, ActivityDate, Child, Message, Profile } from "@/types/database.types";
 import { format, parseISO } from "date-fns";
 
 const ActivityDetail = () => {
@@ -69,21 +69,35 @@ const ActivityDetail = () => {
           duration,
           created_at,
           updated_at,
-          provider:profiles(
+          provider:profiles!provider_id(
             id,
             full_name,
             avatar_url,
             phone,
-            role,
-            created_at,
-            updated_at
+            role
           )
         `)
         .eq("id", id)
         .single();
 
       if (activityError) throw activityError;
-      setActivity(activityData ? { ...activityData, duration: String(activityData.duration) } : null);
+
+      if (activityData) {
+        const provider = activityData.provider as Profile;
+        const activity: Activity = {
+          ...activityData,
+          duration: String(activityData.duration),
+          provider: {
+            ...provider,
+            role: provider.role as 'parent' | 'provider',
+            created_at: provider.created_at || '',
+            updated_at: provider.updated_at || ''
+          }
+        };
+        setActivity(activity);
+      } else {
+        setActivity(null);
+      }
 
       const { data: datesData, error: datesError } = await supabase
         .from("activity_dates")
@@ -140,7 +154,7 @@ const ActivityDetail = () => {
           read,
           created_at,
           updated_at,
-          sender:sender_id(
+          sender:profiles!sender_id(
             id,
             full_name,
             avatar_url,
@@ -149,7 +163,7 @@ const ActivityDetail = () => {
             created_at,
             updated_at
           ),
-          receiver:receiver_id(
+          receiver:profiles!receiver_id(
             id,
             full_name,
             avatar_url,
@@ -164,7 +178,21 @@ const ActivityDetail = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setMessages(data || []);
+
+      if (data) {
+        const typedMessages: Message[] = data.map(msg => ({
+          ...msg,
+          sender: {
+            ...msg.sender,
+            role: msg.sender.role as 'parent' | 'provider'
+          },
+          receiver: {
+            ...msg.receiver,
+            role: msg.receiver.role as 'parent' | 'provider'
+          }
+        }));
+        setMessages(typedMessages);
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",

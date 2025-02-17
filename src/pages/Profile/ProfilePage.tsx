@@ -41,30 +41,25 @@ export default function ProfilePage() {
 
   const fetchProfileAndChildren = async () => {
     try {
-      // Fetch profile with type assertion for role
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
-        .select(`
-          id,
-          full_name,
-          avatar_url,
-          phone,
-          role,
-          created_at,
-          updated_at
-        `)
+        .select("*")
         .eq("id", user?.id)
         .single();
 
       if (profileError) throw profileError;
-      // Ensure role is of the correct type
-      if (profileData && (profileData.role === 'parent' || profileData.role === 'provider')) {
-        setProfile(profileData);
-      } else {
-        throw new Error('Invalid role type');
+
+      if (profileData) {
+        const typedProfile: Profile = {
+          ...profileData,
+          role: profileData.role as 'parent' | 'provider',
+          full_name: profileData.full_name || null,
+          avatar_url: profileData.avatar_url || null,
+          phone: profileData.phone || null
+        };
+        setProfile(typedProfile);
       }
 
-      // Fetch children
       const { data: childrenData, error: childrenError } = await supabase
         .from("children")
         .select("*")
@@ -131,7 +126,6 @@ export default function ProfilePage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="space-y-8">
-        {/* Profile Section */}
         <Card>
           <CardHeader>
             <CardTitle>Profile Information</CardTitle>
@@ -150,7 +144,6 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
-        {/* Children Section */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Children</CardTitle>
@@ -194,7 +187,6 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* Add Child Form */}
             {showAddChild && (
               <form onSubmit={handleAddChild} className="mt-6 space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
