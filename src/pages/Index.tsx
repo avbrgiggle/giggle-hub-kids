@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, MapPin, Filter, Heart, Star, LogIn } from "lucide-react";
@@ -157,7 +158,7 @@ const Index = () => {
                 selectedCategory === category ? "active" : ""
               }`}
             >
-              {category}
+              {t(`categories.${category.toLowerCase().replace(" & ", "")}`)}
             </button>
           ))}
         </div>
@@ -197,7 +198,7 @@ const Index = () => {
                     </div>
                     <div>
                       <Badge variant="secondary" className="mb-1">
-                        Ages {activity.ageRange}
+                        {t("activity.ages")} {activity.ageRange}
                       </Badge>
                       <h3 className="text-lg font-semibold">{activity.title}</h3>
                       <p className="text-xs text-muted-foreground">{activity.companyName}</p>
@@ -205,7 +206,7 @@ const Index = () => {
                   </div>
                   <div className="text-right">
                     <p className="text-lg font-bold text-primary">
-                      {activity.price === 0 ? "Free" : `$${activity.price}`}
+                      {activity.price === 0 ? t("activity.free") : `$${activity.price}`}
                     </p>
                   </div>
                 </div>
@@ -222,7 +223,7 @@ const Index = () => {
                   <div className="flex items-center gap-1">
                     <Star className="w-4 h-4 text-primary" />
                     <span className="text-sm">
-                      {activity.rating} ({activity.reviews})
+                      {activity.rating} ({activity.reviews} {t("activity.reviews")})
                     </span>
                   </div>
                 </div>
