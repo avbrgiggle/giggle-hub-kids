@@ -77,9 +77,18 @@ export default function ActivityForm() {
         throw new Error("Please fill in all required fields");
       }
 
+      // Create a properly typed activity object
       const activityData = {
-        ...activity,
+        title: activity.title,
+        description: activity.description,
+        location: activity.location,
+        category: activity.category,
+        age_range: activity.age_range,
+        capacity: activity.capacity,
+        price: activity.price,
+        duration: activity.duration,
         provider_id: user.id,
+        image_url: activity.image_url || null,
       };
 
       if (id) {
