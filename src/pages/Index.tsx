@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, MapPin, Filter, Heart, Star, LogIn } from "lucide-react";
@@ -11,7 +12,7 @@ import { LanguageSelector } from "@/components/LanguageSelector";
 
 const DUMMY_ACTIVITIES = [
   {
-    id: 1,
+    id: "123e4567-e89b-12d3-a456-426614174000",
     title: "Kids Art & Craft Workshop",
     description: "Fun creative workshop where kids can explore their artistic side",
     image: "https://images.unsplash.com/photo-1472396961693-142e6e269027",
@@ -25,7 +26,7 @@ const DUMMY_ACTIVITIES = [
     reviews: 24,
   },
   {
-    id: 2,
+    id: "223e4567-e89b-12d3-a456-426614174001",
     title: "Swimming Lessons for Beginners",
     description: "Professional swimming lessons for children in a safe environment",
     image: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7",
@@ -39,7 +40,7 @@ const DUMMY_ACTIVITIES = [
     reviews: 45,
   },
   {
-    id: 3,
+    id: "323e4567-e89b-12d3-a456-426614174002",
     title: "Coding for Kids",
     description: "Introduction to programming concepts through fun projects",
     image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81",
