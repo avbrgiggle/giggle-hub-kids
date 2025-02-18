@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, MapPin, Filter, Heart, Star, LogIn } from "lucide-react";
@@ -86,6 +85,11 @@ const Index = () => {
     });
   };
 
+  const getCategoryTranslationKey = (category: string) => {
+    if (category === "Arts & Crafts") return "artsCrafts";
+    return category.toLowerCase();
+  };
+
   return (
     <div className="min-h-screen bg-muted/30 animate-fade-in">
       <div className="bg-accent text-white py-16">
@@ -158,7 +162,7 @@ const Index = () => {
                 selectedCategory === category ? "active" : ""
               }`}
             >
-              {t(`categories.${category.toLowerCase().replace(" & ", "")}`)}
+              {t(`categories.${getCategoryTranslationKey(category)}`)}
             </button>
           ))}
         </div>
