@@ -28,7 +28,7 @@ import type { Activity, ActivityDate, Child, Message, Profile } from "@/types/da
 import { format, parseISO } from "date-fns";
 
 const ActivityDetail = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -44,6 +44,7 @@ const ActivityDetail = () => {
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
+    if (!id) return;
     fetchActivityDetails();
     if (user) {
       fetchChildren();
@@ -53,6 +54,8 @@ const ActivityDetail = () => {
 
   const fetchActivityDetails = async () => {
     try {
+      if (!id) return;
+
       const { data: activityData, error: activityError } = await supabase
         .from("activities")
         .select(`
@@ -77,7 +80,7 @@ const ActivityDetail = () => {
             role
           )
         `)
-        .eq("id", id)
+        .eq('id', id)
         .single();
 
       if (activityError) throw activityError;
