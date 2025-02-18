@@ -47,7 +47,13 @@ export default function ActivityForm() {
         .single();
 
       if (error) throw error;
-      if (data) setActivity(data);
+      if (data) {
+        // Ensure duration is converted to string
+        setActivity({
+          ...data,
+          duration: String(data.duration),
+        });
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -63,6 +69,13 @@ export default function ActivityForm() {
 
     try {
       if (!user) throw new Error("Not authenticated");
+
+      // Ensure all required fields are present
+      if (!activity.title || !activity.description || !activity.location || 
+          !activity.category || !activity.age_range || !activity.capacity || 
+          activity.price === undefined || !activity.duration) {
+        throw new Error("Please fill in all required fields");
+      }
 
       const activityData = {
         ...activity,

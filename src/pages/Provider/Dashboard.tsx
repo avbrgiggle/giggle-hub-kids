@@ -34,7 +34,14 @@ export default function ProviderDashboard() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setActivities(data || []);
+      
+      // Convert duration to string type for each activity
+      const formattedActivities = (data || []).map(activity => ({
+        ...activity,
+        duration: String(activity.duration)
+      }));
+      
+      setActivities(formattedActivities);
     } catch (error: any) {
       toast({
         variant: "destructive",
