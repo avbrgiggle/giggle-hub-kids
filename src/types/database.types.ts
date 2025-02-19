@@ -24,7 +24,7 @@ export type Profile = {
 
 export type Activity = {
   id: string;
-  provider_id: string;
+  provider_id: string | null;
   title: string;
   description: string;
   image_url?: string;
@@ -33,7 +33,7 @@ export type Activity = {
   age_range: string;
   capacity: number;
   price: number;
-  duration: string;
+  duration: unknown;  // Changed from string to unknown to match Supabase's interval type
   created_at: string;
   updated_at: string;
   provider?: Profile;
