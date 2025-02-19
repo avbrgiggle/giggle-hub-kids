@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { 
@@ -138,7 +139,7 @@ const ActivityDetail = () => {
   };
 
   const fetchMessages = async () => {
-    if (!user || !activity) return;
+    if (!user || !activity || !activity.provider_id) return;
     
     try {
       const { data, error } = await supabase
@@ -172,8 +173,8 @@ const ActivityDetail = () => {
           )
         `)
         .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
-        .eq("receiver_id", activity.provider_id)
-        .order("created_at", { ascending: false });
+        .eq('receiver_id', activity.provider_id)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
