@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, MapPin, Filter, Heart, Clock, LogIn, Loader2 } from "lucide-react";
@@ -40,16 +39,7 @@ const Index = () => {
     try {
       let query = supabase
         .from("activities")
-        .select(`
-          *,
-          provider:profiles!provider_id(
-            id,
-            full_name,
-            avatar_url,
-            phone,
-            role
-          )
-        `);
+        .select("*, provider:profiles(id, full_name, avatar_url, phone, role)");
 
       if (selectedCategory !== "All") {
         query = query.eq("category", selectedCategory);
