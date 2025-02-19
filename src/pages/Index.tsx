@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, MapPin, Filter, Heart, Star, LogIn } from "lucide-react";
+import { Search, MapPin, Filter, Heart, Star, LogIn, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
@@ -12,47 +11,50 @@ import { LanguageSelector } from "@/components/LanguageSelector";
 
 const DUMMY_ACTIVITIES = [
   {
-    id: "123e4567-e89b-12d3-a456-426614174000",
+    id: "b5e6f1c4-8b7a-4d2e-9f3c-1a2b3c4d5e6f",
     title: "Kids Art & Craft Workshop",
     description: "Fun creative workshop where kids can explore their artistic side",
-    image: "https://images.unsplash.com/photo-1472396961693-142e6e269027",
-    companyLogo: "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b",
-    companyName: "Creative Kids Co",
-    ageRange: "5-12",
+    image_url: "https://images.unsplash.com/photo-1472396961693-142e6e269027",
+    provider_id: "a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6",
+    age_range: "5-12",
     price: 25,
     location: "Creative Studio, Downtown",
     category: "Arts & Crafts",
-    rating: 4.8,
-    reviews: 24,
+    capacity: 15,
+    duration: "02:00:00",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   },
   {
-    id: "223e4567-e89b-12d3-a456-426614174001",
+    id: "c7d8e9f0-1a2b-3c4d-5e6f-7g8h9i0j1k2l",
     title: "Swimming Lessons for Beginners",
     description: "Professional swimming lessons for children in a safe environment",
-    image: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7",
-    companyLogo: "https://images.unsplash.com/photo-1483058712412-4245e9b90334",
-    companyName: "Splash Academy",
-    ageRange: "4-15",
+    image_url: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7",
+    provider_id: "b2c3d4e5-f6g7-h8i9-j0k1-l2m3n4o5p6q7",
+    age_range: "4-15",
     price: 30,
     location: "Splash Pool Center",
     category: "Sports",
-    rating: 4.9,
-    reviews: 45,
+    capacity: 8,
+    duration: "01:00:00",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   },
   {
-    id: "323e4567-e89b-12d3-a456-426614174002",
+    id: "d9e0f1g2-3h4i-5j6k-7l8m-9n0o1p2q3r4",
     title: "Coding for Kids",
     description: "Introduction to programming concepts through fun projects",
-    image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81",
-    companyLogo: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e",
-    companyName: "Tech Kids Lab",
-    ageRange: "8-16",
+    image_url: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81",
+    provider_id: "c3d4e5f6-g7h8-i9j0-k1l2-m3n4o5p6q7r8",
+    age_range: "8-16",
     price: 0,
     location: "Tech Hub Center",
     category: "Education",
-    rating: 4.7,
-    reviews: 18,
-  },
+    capacity: 12,
+    duration: "01:30:00",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  }
 ];
 
 const Categories = [
@@ -171,13 +173,13 @@ const Index = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {DUMMY_ACTIVITIES.map((activity) => (
             <Link 
-              to={`/activities/${activity.id}`}  // Updated route path to match the expected format
+              to={`/activities/${activity.id}`}
               key={activity.id} 
               className="activity-card animate-slide-up group"
             >
               <div className="activity-image">
                 <img
-                  src={activity.image}
+                  src={activity.image_url}
                   alt={activity.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
@@ -194,19 +196,11 @@ const Index = () => {
               <div className="activity-content">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 rounded-full overflow-hidden border border-muted flex-shrink-0">
-                      <img
-                        src={activity.companyLogo}
-                        alt={activity.companyName}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
                     <div>
                       <Badge variant="secondary" className="mb-1">
-                        {t("activity.ages")} {activity.ageRange}
+                        {t("activity.ages")} {activity.age_range}
                       </Badge>
                       <h3 className="text-lg font-semibold">{activity.title}</h3>
-                      <p className="text-xs text-muted-foreground">{activity.companyName}</p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -226,9 +220,9 @@ const Index = () => {
                     </span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 text-primary" />
+                    <Clock className="w-4 h-4 text-primary" />
                     <span className="text-sm">
-                      {activity.rating} ({activity.reviews} {t("activity.reviews")})
+                      {activity.duration.split(":")[0]}h {activity.duration.split(":")[1]}m
                     </span>
                   </div>
                 </div>
