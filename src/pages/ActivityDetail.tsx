@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { 
@@ -42,6 +43,7 @@ const ActivityDetail = () => {
   const [showMessageDialog, setShowMessageDialog] = useState(false);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -81,26 +83,28 @@ const ActivityDetail = () => {
           )
         `)
         .eq('id', id)
-        .single();
+        .maybeSingle();  // Changed from .single() to .maybeSingle()
 
       if (activityError) throw activityError;
 
-      if (activityData) {
-        const provider = activityData.provider as Profile;
-        const activity: Activity = {
-          ...activityData,
-          duration: String(activityData.duration),
-          provider: {
-            ...provider,
-            role: provider.role as 'parent' | 'provider',
-            created_at: provider.created_at || '',
-            updated_at: provider.updated_at || ''
-          }
-        };
-        setActivity(activity);
-      } else {
-        setActivity(null);
+      if (!activityData) {
+        setNotFound(true);
+        setLoading(false);
+        return;
       }
+
+      const provider = activityData.provider as Profile;
+      const activity: Activity = {
+        ...activityData,
+        duration: String(activityData.duration),
+        provider: {
+          ...provider,
+          role: provider.role as 'parent' | 'provider',
+          created_at: provider.created_at || '',
+          updated_at: provider.updated_at || ''
+        }
+      };
+      setActivity(activity);
 
       const { data: datesData, error: datesError } = await supabase
         .from("activity_dates")
@@ -284,10 +288,22 @@ const ActivityDetail = () => {
     );
   }
 
-  if (!activity) {
+  if (notFound) {
     return (
       <div className="container mx-auto py-8 px-4 text-center">
         <h1 className="text-2xl font-bold mb-4">Activity not found</h1>
+        <p className="text-muted-foreground mb-4">The activity you're looking for doesn't exist or has been removed.</p>
+        <Link to="/" className="text-primary hover:underline">
+          Return to home
+        </Link>
+      </div>
+    );
+  }
+
+  if (!activity) {
+    return (
+      <div className="container mx-auto py-8 px-4 text-center">
+        <h1 className="text-2xl font-bold mb-4">Error loading activity</h1>
         <Link to="/" className="text-primary hover:underline">
           Return to home
         </Link>
