@@ -21,7 +21,7 @@ export type Database = {
           image_url: string | null
           location: string
           price: number
-          provider_id: string
+          provider_id: string | null
           title: string
           updated_at: string
         }
@@ -36,7 +36,7 @@ export type Database = {
           image_url?: string | null
           location: string
           price: number
-          provider_id: string
+          provider_id?: string | null
           title: string
           updated_at?: string
         }
@@ -51,7 +51,7 @@ export type Database = {
           image_url?: string | null
           location?: string
           price?: number
-          provider_id?: string
+          provider_id?: string | null
           title?: string
           updated_at?: string
         }
