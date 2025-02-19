@@ -1,7 +1,7 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, MapPin, Filter, Heart, Clock, LogIn } from "lucide-react";
+import { Search, MapPin, Filter, Heart, Clock, LogIn, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
@@ -9,54 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { LanguageSelector } from "@/components/LanguageSelector";
-
-const DUMMY_ACTIVITIES = [
-  {
-    id: "b5e6f1c4-8b7a-4d2e-9f3c-1a2b3c4d5e6f",
-    title: "Kids Art & Craft Workshop",
-    description: "Fun creative workshop where kids can explore their artistic side",
-    image_url: "https://images.unsplash.com/photo-1472396961693-142e6e269027",
-    provider_id: "a1b2c3d4-e5f6-4g7h-8i9j-k1l2m3n4o5p6",
-    age_range: "5-12",
-    price: 25,
-    location: "Creative Studio, Downtown",
-    category: "Arts & Crafts",
-    capacity: 15,
-    duration: "02:00:00",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: "c7d8e9f0-1a2b-3c4d-4e5f-6g7h8i9j1k2l",
-    title: "Swimming Lessons for Beginners",
-    description: "Professional swimming lessons for children in a safe environment",
-    image_url: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7",
-    provider_id: "b2c3d4e5-f6g7-4h8i-9j0k-l2m3n4o5p6q7",
-    age_range: "4-15",
-    price: 30,
-    location: "Splash Pool Center",
-    category: "Sports",
-    capacity: 8,
-    duration: "01:00:00",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: "d9e0f1g2-3h4i-5j6k-4l8m-9n0o1p2q3r4s",
-    title: "Coding for Kids",
-    description: "Introduction to programming concepts through fun projects",
-    image_url: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81",
-    provider_id: "c3d4e5f6-g7h8-4i9j-0k1l-m3n4o5p6q7r8",
-    age_range: "8-16",
-    price: 0,
-    location: "Tech Hub Center",
-    category: "Education",
-    capacity: 12,
-    duration: "01:30:00",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  }
-];
+import { supabase } from "@/integrations/supabase/client";
+import type { Activity } from "@/types/database.types";
 
 const Categories = [
   "All",
@@ -72,9 +26,50 @@ const Categories = [
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [ageRange, setAgeRange] = useState([0, 18]);
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const { t } = useTranslation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchActivities();
+  }, [selectedCategory]);
+
+  const fetchActivities = async () => {
+    try {
+      let query = supabase
+        .from("activities")
+        .select(`
+          *,
+          provider:profiles!provider_id(
+            id,
+            full_name,
+            avatar_url,
+            phone,
+            role
+          )
+        `);
+
+      if (selectedCategory !== "All") {
+        query = query.eq("category", selectedCategory);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      setActivities(data || []);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAgeRangeChange = (newValue: number[]) => {
     if (newValue[0] <= newValue[1]) {
@@ -171,66 +166,76 @@ const Index = () => {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {DUMMY_ACTIVITIES.map((activity) => (
-            <Link 
-              to={`/activities/${activity.id}`}
-              key={activity.id} 
-              className="activity-card animate-slide-up group"
-            >
-              <div className="activity-image">
-                <img
-                  src={activity.image_url}
-                  alt={activity.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleSave(activity.id);
-                  }}
-                  className="absolute top-4 right-4 p-2 bg-white/90 rounded-full hover:bg-white transition-colors"
-                >
-                  <Heart className="w-5 h-5 text-primary" />
-                </button>
-              </div>
-              <div className="activity-content">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div>
-                      <Badge variant="secondary" className="mb-1">
-                        {t("activity.ages")} {activity.age_range}
-                      </Badge>
-                      <h3 className="text-lg font-semibold">{activity.title}</h3>
+        {loading ? (
+          <div className="flex justify-center items-center min-h-[200px]">
+            <Loader2 className="w-8 h-8 animate-spin" />
+          </div>
+        ) : activities.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">No activities found</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {activities.map((activity) => (
+              <Link 
+                to={`/activities/${activity.id}`}
+                key={activity.id} 
+                className="activity-card animate-slide-up group"
+              >
+                <div className="activity-image">
+                  <img
+                    src={activity.image_url || "https://images.unsplash.com/photo-1472396961693-142e6e269027"}
+                    alt={activity.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleSave(activity.id);
+                    }}
+                    className="absolute top-4 right-4 p-2 bg-white/90 rounded-full hover:bg-white transition-colors"
+                  >
+                    <Heart className="w-5 h-5 text-primary" />
+                  </button>
+                </div>
+                <div className="activity-content">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div>
+                        <Badge variant="secondary" className="mb-1">
+                          {t("activity.ages")} {activity.age_range}
+                        </Badge>
+                        <h3 className="text-lg font-semibold">{activity.title}</h3>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-lg font-bold text-primary">
+                        {activity.price === 0 ? t("activity.free") : `$${activity.price}`}
+                      </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-primary">
-                      {activity.price === 0 ? t("activity.free") : `$${activity.price}`}
-                    </p>
+                  <p className="text-sm text-muted-foreground">
+                    {activity.description}
+                  </p>
+                  <div className="flex items-center gap-4 pt-2">
+                    <div className="flex items-center gap-1">
+                      <MapPin className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        {activity.location}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-4 h-4 text-primary" />
+                      <span className="text-sm">
+                        {String(activity.duration).split(":")[0]}h {String(activity.duration).split(":")[1]}m
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {activity.description}
-                </p>
-                <div className="flex items-center gap-4 pt-2">
-                  <div className="flex items-center gap-1">
-                    <MapPin className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">
-                      {activity.location}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4 text-primary" />
-                    <span className="text-sm">
-                      {activity.duration.split(":")[0]}h {activity.duration.split(":")[1]}m
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
