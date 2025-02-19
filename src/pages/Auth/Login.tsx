@@ -39,10 +39,8 @@ export default function Login() {
 
         toast({
           title: "Success",
-          description: "Account created successfully",
+          description: "Account created! Please check your email for verification.",
         });
-
-        navigate(role === "provider" ? "/provider/dashboard" : "/");
       }
     } catch (error: any) {
       toast({
@@ -65,7 +63,27 @@ export default function Login() {
         password,
       });
 
-      if (signInError) throw signInError;
+      if (signInError) {
+        // Handle the email not confirmed error specifically
+        if (signInError.message.includes("Email not confirmed")) {
+          const { error: resendError } = await supabase.auth.resend({
+            type: 'signup',
+            email,
+          });
+
+          if (!resendError) {
+            toast({
+              title: "Email Not Verified",
+              description: "Please check your email for the verification link. We've sent a new one just in case.",
+            });
+          } else {
+            throw resendError;
+          }
+        } else {
+          throw signInError;
+        }
+        return;
+      }
 
       toast({
         title: "Success",
