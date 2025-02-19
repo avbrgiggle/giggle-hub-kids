@@ -79,7 +79,7 @@ const Index = () => {
     }
   };
 
-  const handleSave = (activityId: string) => {  // Changed type from number to string
+  const handleSave = (activityId: string) => {
     toast({
       title: t("activity.saved"),
       description: t("activity.savedDesc"),
@@ -171,7 +171,7 @@ const Index = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {DUMMY_ACTIVITIES.map((activity) => (
             <Link 
-              to={`/activity/${activity.id}`} 
+              to={`/activities/${activity.id}`}  // Updated route path to match the expected format
               key={activity.id} 
               className="activity-card animate-slide-up group"
             >
