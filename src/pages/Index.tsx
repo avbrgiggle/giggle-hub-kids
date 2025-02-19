@@ -79,7 +79,7 @@ const Index = () => {
     }
   };
 
-  const handleSave = (activityId: number) => {
+  const handleSave = (activityId: string) => {  // Changed type from number to string
     toast({
       title: t("activity.saved"),
       description: t("activity.savedDesc"),
