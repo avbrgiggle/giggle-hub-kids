@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { Activity } from "@/types/database.types";
 
-export default function ActivityForm() {
+const ActivityForm = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -48,7 +47,6 @@ export default function ActivityForm() {
 
       if (error) throw error;
       if (data) {
-        // Ensure duration is converted to string
         setActivity({
           ...data,
           duration: String(data.duration),
@@ -70,14 +68,12 @@ export default function ActivityForm() {
     try {
       if (!user) throw new Error("Not authenticated");
 
-      // Ensure all required fields are present
       if (!activity.title || !activity.description || !activity.location || 
           !activity.category || !activity.age_range || !activity.capacity || 
           activity.price === undefined || !activity.duration) {
         throw new Error("Please fill in all required fields");
       }
 
-      // Create a properly typed activity object
       const activityData = {
         title: activity.title,
         description: activity.description,
@@ -86,7 +82,7 @@ export default function ActivityForm() {
         age_range: activity.age_range,
         capacity: activity.capacity,
         price: activity.price,
-        duration: activity.duration,
+        duration: String(activity.duration),
         provider_id: user.id,
         image_url: activity.image_url || null,
       };
@@ -256,4 +252,6 @@ export default function ActivityForm() {
       </form>
     </div>
   );
-}
+};
+
+export default ActivityForm;

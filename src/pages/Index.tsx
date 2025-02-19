@@ -49,7 +49,18 @@ const Index = () => {
 
       if (error) throw error;
 
-      setActivities(data || []);
+      const formattedActivities: Activity[] = (data || []).map(activity => ({
+        ...activity,
+        duration: String(activity.duration),
+        provider: activity.provider ? {
+          ...activity.provider,
+          role: activity.provider.role as 'parent' | 'provider',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        } : undefined
+      }));
+
+      setActivities(formattedActivities);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -77,6 +88,12 @@ const Index = () => {
   const getCategoryTranslationKey = (category: string) => {
     if (category === "Arts & Crafts") return "artsCrafts";
     return category.toLowerCase();
+  };
+
+  const formatDuration = (duration: string) => {
+    const [hours, minutes] = duration.split(':');
+    if (!hours || !minutes) return duration;
+    return `${hours}h ${minutes}m`;
   };
 
   return (
@@ -217,7 +234,7 @@ const Index = () => {
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4 text-primary" />
                       <span className="text-sm">
-                        {String(activity.duration).split(":")[0]}h {String(activity.duration).split(":")[1]}m
+                        {formatDuration(String(activity.duration))}
                       </span>
                     </div>
                   </div>

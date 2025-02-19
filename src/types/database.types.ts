@@ -33,10 +33,10 @@ export type Activity = {
   age_range: string;
   capacity: number;
   price: number;
-  duration: unknown;  // Changed from string to unknown to match Supabase's interval type
+  duration: string;  // Keep as string but handle conversion in components
   created_at: string;
   updated_at: string;
-  provider?: Profile;
+  provider?: Partial<Profile>;  // Make provider fields optional
 };
 
 export type ActivityDate = {
