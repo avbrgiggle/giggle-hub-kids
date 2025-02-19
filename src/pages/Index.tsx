@@ -1,6 +1,7 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, MapPin, Filter, Heart, Star, LogIn, Clock } from "lucide-react";
+import { Search, MapPin, Filter, Heart, Clock, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
@@ -15,7 +16,7 @@ const DUMMY_ACTIVITIES = [
     title: "Kids Art & Craft Workshop",
     description: "Fun creative workshop where kids can explore their artistic side",
     image_url: "https://images.unsplash.com/photo-1472396961693-142e6e269027",
-    provider_id: "a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6",
+    provider_id: "a1b2c3d4-e5f6-4g7h-8i9j-k1l2m3n4o5p6",
     age_range: "5-12",
     price: 25,
     location: "Creative Studio, Downtown",
@@ -26,11 +27,11 @@ const DUMMY_ACTIVITIES = [
     updated_at: new Date().toISOString()
   },
   {
-    id: "c7d8e9f0-1a2b-3c4d-5e6f-7g8h9i0j1k2l",
+    id: "c7d8e9f0-1a2b-3c4d-4e5f-6g7h8i9j1k2l",
     title: "Swimming Lessons for Beginners",
     description: "Professional swimming lessons for children in a safe environment",
     image_url: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7",
-    provider_id: "b2c3d4e5-f6g7-h8i9-j0k1-l2m3n4o5p6q7",
+    provider_id: "b2c3d4e5-f6g7-4h8i-9j0k-l2m3n4o5p6q7",
     age_range: "4-15",
     price: 30,
     location: "Splash Pool Center",
@@ -41,11 +42,11 @@ const DUMMY_ACTIVITIES = [
     updated_at: new Date().toISOString()
   },
   {
-    id: "d9e0f1g2-3h4i-5j6k-7l8m-9n0o1p2q3r4",
+    id: "d9e0f1g2-3h4i-5j6k-4l8m-9n0o1p2q3r4s",
     title: "Coding for Kids",
     description: "Introduction to programming concepts through fun projects",
     image_url: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81",
-    provider_id: "c3d4e5f6-g7h8-i9j0-k1l2-m3n4o5p6q7r8",
+    provider_id: "c3d4e5f6-g7h8-4i9j-0k1l-m3n4o5p6q7r8",
     age_range: "8-16",
     price: 0,
     location: "Tech Hub Center",
