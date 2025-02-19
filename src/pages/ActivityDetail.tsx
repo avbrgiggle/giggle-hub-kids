@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { 
@@ -25,7 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import type { Activity, ActivityDate, Child, Message, Profile } from "@/types/database.types";
+import type { Activity, ActivityDate, Child, Message } from "@/types/database.types";
 import { format, parseISO } from "date-fns";
 
 const ActivityDetail = () => {
@@ -46,7 +45,11 @@ const ActivityDetail = () => {
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    if (!id) return;
+    if (!id) {
+      setNotFound(true);
+      setLoading(false);
+      return;
+    }
     fetchActivityDetails();
     if (user) {
       fetchChildren();
@@ -61,19 +64,7 @@ const ActivityDetail = () => {
       const { data: activityData, error: activityError } = await supabase
         .from("activities")
         .select(`
-          id,
-          provider_id,
-          title,
-          description,
-          image_url,
-          location,
-          category,
-          age_range,
-          capacity,
-          price,
-          duration,
-          created_at,
-          updated_at,
+          *,
           provider:profiles!provider_id(
             id,
             full_name,
@@ -83,7 +74,7 @@ const ActivityDetail = () => {
           )
         `)
         .eq('id', id)
-        .maybeSingle();  // Changed from .single() to .maybeSingle()
+        .maybeSingle();
 
       if (activityError) throw activityError;
 
@@ -93,18 +84,18 @@ const ActivityDetail = () => {
         return;
       }
 
-      const provider = activityData.provider as Profile;
-      const activity: Activity = {
+      const formattedActivity: Activity = {
         ...activityData,
         duration: String(activityData.duration),
-        provider: {
-          ...provider,
-          role: provider.role as 'parent' | 'provider',
-          created_at: provider.created_at || '',
-          updated_at: provider.updated_at || ''
-        }
+        provider: activityData.provider ? {
+          ...activityData.provider,
+          role: activityData.provider.role as 'parent' | 'provider',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        } : undefined
       };
-      setActivity(activity);
+
+      setActivity(formattedActivity);
 
       const { data: datesData, error: datesError } = await supabase
         .from("activity_dates")
