@@ -15,8 +15,8 @@ import NotFound from "@/pages/NotFound";
 function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-      <Router>
-        <AuthProvider>
+      <AuthProvider>
+        <Router>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
@@ -29,8 +29,8 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster />
-        </AuthProvider>
-      </Router>
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

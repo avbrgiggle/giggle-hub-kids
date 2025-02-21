@@ -20,12 +20,13 @@ export const HeaderActions = () => {
   const { t } = useTranslation();
   const { toast } = useToast();
 
+  console.log("HeaderActions - Current user:", user);
+
   const handleLogout = async () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       navigate("/");
-      // Force a page reload after logout to ensure clean state
       window.location.reload();
     } catch (error: any) {
       toast({
