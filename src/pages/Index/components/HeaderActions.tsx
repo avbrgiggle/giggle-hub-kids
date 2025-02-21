@@ -66,13 +66,13 @@ export const HeaderActions = () => {
             onClick={() => navigate("/login")}
           >
             <LogIn className="w-4 h-4 mr-2" />
-            {t("nav.login")}
+            Login
           </Button>
           <Button 
             variant="secondary"
             onClick={() => navigate("/signup")}
           >
-            {t("nav.signup")}
+            Sign Up
           </Button>
         </div>
       )}
