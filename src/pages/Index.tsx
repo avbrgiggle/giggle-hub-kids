@@ -1,14 +1,21 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, MapPin, Filter, Heart, Clock, LogIn, Loader2 } from "lucide-react";
+import { Search, MapPin, Filter, Heart, Clock, LogIn, Loader2, UserCircle, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Activity } from "@/types/database.types";
 
 const Categories = [
@@ -29,6 +36,7 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const { t } = useTranslation();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -85,6 +93,20 @@ const Index = () => {
     });
   };
 
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    }
+  };
+
   const getCategoryTranslationKey = (category: string) => {
     if (category === "Arts & Crafts") return "artsCrafts";
     return category.toLowerCase();
@@ -103,14 +125,44 @@ const Index = () => {
           <div className="flex flex-col items-center mb-8">
             <div className="w-full flex justify-end gap-4 mb-4">
               <LanguageSelector />
-              <Button 
-                variant="ghost" 
-                className="text-white hover:bg-white/20"
-                onClick={() => navigate("/login")}
-              >
-                <LogIn className="w-4 h-4 mr-2" />
-                {t("nav.login")}
-              </Button>
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="text-white hover:bg-white/20">
+                      <UserCircle className="w-4 h-4 mr-2" />
+                      My Account
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => navigate("/profile")}>
+                      Profile
+                    </DropdownMenuItem>
+                    {user && (
+                      <DropdownMenuItem onClick={handleLogout}>
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Logout
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <div className="flex gap-2">
+                  <Button 
+                    variant="ghost" 
+                    className="text-white hover:bg-white/20"
+                    onClick={() => navigate("/login")}
+                  >
+                    <LogIn className="w-4 h-4 mr-2" />
+                    {t("nav.login")}
+                  </Button>
+                  <Button 
+                    variant="secondary"
+                    onClick={() => navigate("/signup")}
+                  >
+                    {t("nav.signup")}
+                  </Button>
+                </div>
+              )}
             </div>
             <img 
               src="/lovable-uploads/ef0c0ba4-8c77-4009-8669-dec94b2ec9de.png" 
