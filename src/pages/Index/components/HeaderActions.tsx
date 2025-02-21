@@ -25,6 +25,8 @@ export const HeaderActions = () => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       navigate("/");
+      // Force a page reload after logout to ensure clean state
+      window.location.reload();
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -42,19 +44,17 @@ export const HeaderActions = () => {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="text-white hover:bg-white/20">
               <UserCircle className="w-4 h-4 mr-2" />
-              My Account
+              {user.email}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => navigate("/profile")}>
               Profile
             </DropdownMenuItem>
-            {user && (
-              <DropdownMenuItem onClick={handleLogout}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </DropdownMenuItem>
-            )}
+            <DropdownMenuItem onClick={handleLogout}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
