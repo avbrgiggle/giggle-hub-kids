@@ -20,9 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useTranslation } from "react-i18next";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -30,8 +29,7 @@ export default function Signup() {
     email: "",
     password: "",
     phone: "",
-    location: "",
-    communicationPreference: "",
+    role: "parent",
     agreeToTerms: false,
   });
   const [loading, setLoading] = useState(false);
@@ -76,6 +74,7 @@ export default function Signup() {
           id: signUpData.user.id,
           full_name: formData.fullName,
           phone: formData.phone,
+          role: formData.role,
         });
 
       if (profileError) throw profileError;
@@ -115,7 +114,6 @@ export default function Signup() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-4">
-              <h3 className="font-medium">Required Information</h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="fullName">Full Name</Label>
@@ -155,6 +153,21 @@ export default function Signup() {
                     onChange={(e) => handleInputChange("phone", e.target.value)}
                     required
                   />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="role">Role</Label>
+                  <Select
+                    value={formData.role}
+                    onValueChange={(value) => handleInputChange("role", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="parent">Parent</SelectItem>
+                      <SelectItem value="provider">Provider</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
