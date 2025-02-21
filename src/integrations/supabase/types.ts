@@ -263,27 +263,42 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          location: string | null
           phone: string | null
+          preferred_communication: string | null
+          preferred_payment_method: string | null
+          referral_code: string | null
           role: string | null
           updated_at: string
+          username: string | null
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
           full_name?: string | null
           id: string
+          location?: string | null
           phone?: string | null
+          preferred_communication?: string | null
+          preferred_payment_method?: string | null
+          referral_code?: string | null
           role?: string | null
           updated_at?: string
+          username?: string | null
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
+          location?: string | null
           phone?: string | null
+          preferred_communication?: string | null
+          preferred_payment_method?: string | null
+          referral_code?: string | null
           role?: string | null
           updated_at?: string
+          username?: string | null
         }
         Relationships: []
       }

@@ -26,10 +26,14 @@ import { supabase } from "@/integrations/supabase/client";
 export default function Signup() {
   const [formData, setFormData] = useState({
     fullName: "",
+    username: "",
     email: "",
     password: "",
     phone: "",
-    role: "parent",
+    location: "",
+    preferredCommunication: "email",
+    referralCode: "",
+    preferredPaymentMethod: "",
     agreeToTerms: false,
   });
   const [loading, setLoading] = useState(false);
@@ -67,14 +71,19 @@ export default function Signup() {
         throw new Error("User ID not found after signup");
       }
 
-      // After successful signup, create the profile with the user's ID
+      // After successful signup, create the profile with all the new fields
       const { error: profileError } = await supabase
         .from("profiles")
         .insert({
           id: signUpData.user.id,
           full_name: formData.fullName,
+          username: formData.username,
           phone: formData.phone,
-          role: formData.role,
+          location: formData.location,
+          preferred_communication: formData.preferredCommunication,
+          referral_code: formData.referralCode || null,
+          preferred_payment_method: formData.preferredPaymentMethod || null,
+          role: "parent",
         });
 
       if (profileError) throw profileError;
@@ -115,8 +124,9 @@ export default function Signup() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
+                {/* Mandatory Fields */}
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
+                  <Label htmlFor="fullName">Full Name *</Label>
                   <Input
                     id="fullName"
                     value={formData.fullName}
@@ -125,7 +135,16 @@ export default function Signup() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
+                  <Label htmlFor="username">Username *</Label>
+                  <Input
+                    id="username"
+                    value={formData.username}
+                    onChange={(e) => handleInputChange("username", e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address *</Label>
                   <Input
                     id="email"
                     type="email"
@@ -135,7 +154,7 @@ export default function Signup() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">Password *</Label>
                   <Input
                     id="password"
                     type="password"
@@ -145,7 +164,7 @@ export default function Signup() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
+                  <Label htmlFor="phone">Phone Number *</Label>
                   <Input
                     id="phone"
                     type="tel"
@@ -154,18 +173,58 @@ export default function Signup() {
                     required
                   />
                 </div>
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="role">Role</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="location">Location (City/Postal Code) *</Label>
+                  <Input
+                    id="location"
+                    value={formData.location}
+                    onChange={(e) => handleInputChange("location", e.target.value)}
+                    required
+                  />
+                </div>
+
+                {/* Optional Fields */}
+                <div className="space-y-2">
+                  <Label htmlFor="preferredCommunication">
+                    Preferred Communication Method
+                  </Label>
                   <Select
-                    value={formData.role}
-                    onValueChange={(value) => handleInputChange("role", value)}
+                    value={formData.preferredCommunication}
+                    onValueChange={(value) => handleInputChange("preferredCommunication", value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select your role" />
+                      <SelectValue placeholder="Select preferred method" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="parent">Parent</SelectItem>
-                      <SelectItem value="provider">Provider</SelectItem>
+                      <SelectItem value="email">Email</SelectItem>
+                      <SelectItem value="sms">SMS</SelectItem>
+                      <SelectItem value="app">App Notifications</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="referralCode">Referral Code (Optional)</Label>
+                  <Input
+                    id="referralCode"
+                    value={formData.referralCode}
+                    onChange={(e) => handleInputChange("referralCode", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="preferredPaymentMethod">
+                    Preferred Payment Method (Optional)
+                  </Label>
+                  <Select
+                    value={formData.preferredPaymentMethod}
+                    onValueChange={(value) => handleInputChange("preferredPaymentMethod", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select payment method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="credit_card">Credit Card</SelectItem>
+                      <SelectItem value="debit_card">Debit Card</SelectItem>
+                      <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -189,11 +248,16 @@ export default function Signup() {
                   I agree to the{" "}
                   <Link to="/terms" className="text-primary hover:underline">
                     Terms of Use
-                  </Link>{" "}
-                  and{" "}
+                  </Link>
+                  ,{" "}
                   <Link to="/privacy" className="text-primary hover:underline">
                     Privacy Policy
                   </Link>
+                  , and the use of cookies for a better browsing experience. By signing up, you confirm that you have read and understood our policies regarding data protection, account usage, and{" "}
+                  <Link to="/cookies" className="text-primary hover:underline">
+                    cookie preferences
+                  </Link>
+                  .
                 </Label>
               </div>
             </div>
