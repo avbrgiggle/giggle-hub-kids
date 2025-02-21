@@ -130,7 +130,7 @@ const Index = () => {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="text-white hover:bg-white/20">
                       <UserCircle className="w-4 h-4 mr-2" />
-                      My Account
+                      {user.email}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
@@ -153,13 +153,13 @@ const Index = () => {
                     onClick={() => navigate("/login")}
                   >
                     <LogIn className="w-4 h-4 mr-2" />
-                    {t("nav.login")}
+                    Login
                   </Button>
                   <Button 
                     variant="secondary"
                     onClick={() => navigate("/signup")}
                   >
-                    {t("nav.signup")}
+                    Sign Up
                   </Button>
                 </div>
               )}
