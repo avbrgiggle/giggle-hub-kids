@@ -8,6 +8,7 @@ export type Child = {
   gender?: string;
   allergies?: string[];
   medical_conditions?: string;
+  interests?: string[];
   created_at: string;
   updated_at: string;
 };

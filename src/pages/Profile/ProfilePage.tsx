@@ -77,7 +77,7 @@ export default function ProfilePage() {
         .eq("parent_id", user?.id);
 
       if (childrenError) throw childrenError;
-      setChildren(childrenData);
+      setChildren(childrenData || []);
     } catch (error: any) {
       toast({
         variant: "destructive",
