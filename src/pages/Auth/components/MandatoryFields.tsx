@@ -6,9 +6,10 @@ import type { SignupFormData } from "../hooks/useSignup";
 interface MandatoryFieldsProps {
   formData: SignupFormData;
   onInputChange: (field: string, value: string) => void;
+  disableEmail?: boolean;
 }
 
-export function MandatoryFields({ formData, onInputChange }: MandatoryFieldsProps) {
+export function MandatoryFields({ formData, onInputChange, disableEmail = false }: MandatoryFieldsProps) {
   return (
     <>
       <div className="space-y-2">
@@ -37,6 +38,8 @@ export function MandatoryFields({ formData, onInputChange }: MandatoryFieldsProp
           value={formData.email}
           onChange={(e) => onInputChange("email", e.target.value)}
           required
+          disabled={disableEmail}
+          className={disableEmail ? "bg-muted cursor-not-allowed" : ""}
         />
       </div>
       <div className="space-y-2">

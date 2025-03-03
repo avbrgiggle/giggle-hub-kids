@@ -15,6 +15,8 @@ export interface SignupFormData {
   referralCode: string;
   preferredPaymentMethod: string;
   agreeToTerms: boolean;
+  providerCode: string;
+  isProvider: boolean;
 }
 
 export const useSignup = () => {
@@ -29,8 +31,11 @@ export const useSignup = () => {
     referralCode: "",
     preferredPaymentMethod: "",
     agreeToTerms: false,
+    providerCode: "",
+    isProvider: false,
   });
   const [loading, setLoading] = useState(false);
+  const [providerCodeValid, setProviderCodeValid] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -41,6 +46,17 @@ export const useSignup = () => {
     }));
   };
 
+  const handleValidProviderCode = (isValid: boolean, email?: string) => {
+    setProviderCodeValid(isValid);
+    if (isValid && email) {
+      setFormData((prev) => ({
+        ...prev,
+        email: email,
+        isProvider: true,
+      }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.agreeToTerms) {
@@ -48,6 +64,16 @@ export const useSignup = () => {
         variant: "destructive",
         title: "Error",
         description: "Please agree to the terms and conditions",
+      });
+      return;
+    }
+
+    // If provider is selected but code is not valid
+    if (formData.isProvider && !providerCodeValid) {
+      toast({
+        variant: "destructive",
+        title: "Invalid provider code",
+        description: "Please enter and verify a valid provider code",
       });
       return;
     }
@@ -71,6 +97,7 @@ export const useSignup = () => {
         throw new Error("User ID not found after signup");
       }
 
+      // Insert profile data
       const { error: profileError } = await supabase
         .from("profiles")
         .insert({
@@ -82,10 +109,23 @@ export const useSignup = () => {
           preferred_communication: formData.preferredCommunication,
           referral_code: formData.referralCode || null,
           preferred_payment_method: formData.preferredPaymentMethod || null,
-          role: "parent",
+          role: formData.isProvider ? "provider" : "parent",
         });
 
       if (profileError) throw profileError;
+
+      // If this is a provider signup, mark the code as used
+      if (formData.isProvider && formData.providerCode) {
+        const { error: codeError } = await supabase
+          .from("provider_signup_codes")
+          .update({ used: true })
+          .eq("code", formData.providerCode);
+
+        if (codeError) {
+          console.error("Error marking code as used:", codeError);
+          // We don't want to fail the signup if this fails
+        }
+      }
 
       toast({
         title: "Success",
@@ -106,7 +146,9 @@ export const useSignup = () => {
   return {
     formData,
     loading,
+    providerCodeValid,
     handleInputChange,
+    handleValidProviderCode,
     handleSubmit,
   };
 };
