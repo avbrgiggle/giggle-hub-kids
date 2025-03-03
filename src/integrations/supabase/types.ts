@@ -270,6 +270,7 @@ export type Database = {
           phone: string | null
           preferred_communication: string | null
           preferred_payment_method: string | null
+          provider_info: Json | null
           referral_code: string | null
           role: string | null
           updated_at: string
@@ -284,6 +285,7 @@ export type Database = {
           phone?: string | null
           preferred_communication?: string | null
           preferred_payment_method?: string | null
+          provider_info?: Json | null
           referral_code?: string | null
           role?: string | null
           updated_at?: string
@@ -298,10 +300,95 @@ export type Database = {
           phone?: string | null
           preferred_communication?: string | null
           preferred_payment_method?: string | null
+          provider_info?: Json | null
           referral_code?: string | null
           role?: string | null
           updated_at?: string
           username?: string | null
+        }
+        Relationships: []
+      }
+      provider_signup_codes: {
+        Row: {
+          code: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          updated_at: string
+          used: boolean
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          updated_at?: string
+          used?: boolean
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          updated_at?: string
+          used?: boolean
+        }
+        Relationships: []
+      }
+      provider_signup_requests: {
+        Row: {
+          activity_types: string[]
+          age_range: string
+          created_at: string
+          duration_types: string[]
+          email: string
+          facebook_url: string | null
+          id: string
+          instagram_url: string | null
+          linkedin_url: string | null
+          location: string
+          name: string
+          status: string
+          tiktok_url: string | null
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          activity_types: string[]
+          age_range: string
+          created_at?: string
+          duration_types: string[]
+          email: string
+          facebook_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          linkedin_url?: string | null
+          location: string
+          name: string
+          status?: string
+          tiktok_url?: string | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          activity_types?: string[]
+          age_range?: string
+          created_at?: string
+          duration_types?: string[]
+          email?: string
+          facebook_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          linkedin_url?: string | null
+          location?: string
+          name?: string
+          status?: string
+          tiktok_url?: string | null
+          updated_at?: string
+          website_url?: string | null
         }
         Relationships: []
       }

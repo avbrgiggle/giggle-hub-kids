@@ -1,20 +1,12 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Check, X } from "lucide-react";
+import { ProviderSignupRequest } from "@/types/database.types";
 
 interface ProviderRequestFormData {
   name: string;
@@ -99,22 +91,24 @@ export function ProviderRequestForm() {
     setLoading(true);
     
     try {
+      const requestData: Partial<ProviderSignupRequest> = {
+        name: formData.name,
+        email: formData.email,
+        website_url: formData.websiteUrl || null,
+        facebook_url: formData.facebookUrl || null,
+        instagram_url: formData.instagramUrl || null,
+        linkedin_url: formData.linkedinUrl || null,
+        tiktok_url: formData.tiktokUrl || null,
+        activity_types: formData.activityTypes,
+        location: formData.location,
+        age_range: formData.ageRange,
+        duration_types: formData.durationTypes,
+        status: 'pending'
+      };
+
       const { error } = await supabase
         .from("provider_signup_requests")
-        .insert({
-          name: formData.name,
-          email: formData.email,
-          website_url: formData.websiteUrl || null,
-          facebook_url: formData.facebookUrl || null,
-          instagram_url: formData.instagramUrl || null,
-          linkedin_url: formData.linkedinUrl || null,
-          tiktok_url: formData.tiktokUrl || null,
-          activity_types: formData.activityTypes,
-          location: formData.location,
-          age_range: formData.ageRange,
-          duration_types: formData.durationTypes,
-          status: "pending"
-        });
+        .insert(requestData);
 
       if (error) throw error;
 

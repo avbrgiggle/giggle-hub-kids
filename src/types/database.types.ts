@@ -19,6 +19,12 @@ export type Profile = {
   avatar_url: string | null;
   phone: string | null;
   role: 'parent' | 'provider';
+  location: string | null;
+  username: string | null;
+  preferred_communication: string | null;
+  preferred_payment_method: string | null;
+  referral_code: string | null;
+  provider_info?: any;
   created_at: string;
   updated_at: string;
 };
@@ -75,4 +81,32 @@ export type Message = {
   sender?: Profile;
   receiver?: Profile;
   booking?: Booking;
+};
+
+export type ProviderSignupRequest = {
+  id: string;
+  name: string;
+  email: string;
+  website_url?: string;
+  facebook_url?: string;
+  instagram_url?: string;
+  linkedin_url?: string;
+  tiktok_url?: string;
+  activity_types: string[];
+  location: string;
+  age_range: string;
+  duration_types: string[];
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+  updated_at: string;
+};
+
+export type ProviderSignupCode = {
+  id: string;
+  code: string;
+  email: string;
+  expires_at: string;
+  used: boolean;
+  created_at: string;
+  updated_at: string;
 };

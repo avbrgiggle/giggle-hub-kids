@@ -1,294 +1,144 @@
 
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { useAuth } from "@/contexts/AuthContext";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/contexts/AuthContext";
+import { Profile } from "@/types/database.types";
 
-interface ProviderProfile {
-  full_name: string;
-  username: string;
-  phone: string;
-  location: string;
-  provider_info: {
-    description?: string;
-    website_url?: string;
-    facebook_url?: string;
-    instagram_url?: string;
-    linkedin_url?: string;
-    tiktok_url?: string;
-  } | null;
-}
-
-export default function ProfileTab() {
+export function ProfileTab() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [profile, setProfile] = useState<ProviderProfile>({
-    full_name: "",
-    username: "",
-    phone: "",
-    location: "",
-    provider_info: {
-      description: "",
-      website_url: "",
-      facebook_url: "",
-      instagram_url: "",
-      linkedin_url: "",
-      tiktok_url: "",
-    },
-  });
-  
+  const [profile, setProfile] = useState<Profile | null>(null);
+
   useEffect(() => {
-    if (!user) return;
-    fetchProfile();
+    if (user) {
+      fetchProfile();
+    }
   }, [user]);
-  
+
   const fetchProfile = async () => {
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", user?.id)
         .single();
-        
+
       if (error) throw error;
-      
-      setProfile({
-        full_name: data.full_name || "",
-        username: data.username || "",
-        phone: data.phone || "",
-        location: data.location || "",
-        provider_info: data.provider_info || {
-          description: "",
-          website_url: "",
-          facebook_url: "",
-          instagram_url: "",
-          linkedin_url: "",
-          tiktok_url: "",
-        },
-      });
+      setProfile(data as Profile);
     } catch (error: any) {
+      console.error("Error fetching profile:", error.message);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to load profile information",
+        title: "Error fetching profile",
+        description: error.message,
       });
     } finally {
       setLoading(false);
     }
   };
-  
-  const handleInputChange = (field: string, value: string) => {
-    if (field.includes('.')) {
-      const [parentField, childField] = field.split('.');
-      setProfile(prev => ({
-        ...prev,
-        [parentField]: {
-          ...prev[parentField as keyof ProviderProfile],
-          [childField]: value
-        }
-      }));
-    } else {
-      setProfile(prev => ({
-        ...prev,
-        [field]: value
-      }));
-    }
-  };
-  
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
-    
-    setSaving(true);
+
+  const handleSave = async () => {
+    if (!profile) return;
+
     try {
+      setSaving(true);
       const { error } = await supabase
         .from("profiles")
         .update({
           full_name: profile.full_name,
-          username: profile.username,
           phone: profile.phone,
           location: profile.location,
-          provider_info: profile.provider_info,
-          updated_at: new Date().toISOString()
         })
-        .eq("id", user.id);
-        
+        .eq("id", user?.id);
+
       if (error) throw error;
-      
+
       toast({
         title: "Profile updated",
-        description: "Your profile information has been updated successfully",
+        description: "Your profile has been updated successfully",
       });
     } catch (error: any) {
+      console.error("Error updating profile:", error.message);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error.message || "Failed to update profile",
+        title: "Error updating profile",
+        description: error.message,
       });
     } finally {
       setSaving(false);
     }
   };
-  
+
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
+    return <div>Loading profile...</div>;
   }
-  
+
   return (
-    <div>
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-2">Provider Profile</h2>
-        <p className="text-muted-foreground">Manage your provider information and settings</p>
-      </div>
-      
-      <form onSubmit={handleSubmit}>
-        <div className="grid gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
-              <CardDescription>
-                Update your account details and personal information
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input
-                    id="fullName"
-                    value={profile.full_name}
-                    onChange={(e) => handleInputChange("full_name", e.target.value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="username">Username</Label>
-                  <Input
-                    id="username"
-                    value={profile.username}
-                    onChange={(e) => handleInputChange("username", e.target.value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input
-                    id="phone"
-                    value={profile.phone}
-                    onChange={(e) => handleInputChange("phone", e.target.value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="location">Location</Label>
-                  <Input
-                    id="location"
-                    value={profile.location}
-                    onChange={(e) => handleInputChange("location", e.target.value)}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Provider Information</CardTitle>
-              <CardDescription>
-                This information will be displayed on your public provider profile
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="description">Provider Description</Label>
-                <Textarea
-                  id="description"
-                  rows={4}
-                  value={profile.provider_info?.description || ""}
-                  onChange={(e) => handleInputChange("provider_info.description", e.target.value)}
-                  placeholder="Describe your organization, services, and what makes your activities special"
-                />
-              </div>
-              
-              <Separator className="my-4" />
-              
-              <h3 className="text-lg font-medium mb-4">Social Media & Web Presence</h3>
-              
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="websiteUrl">Website URL</Label>
-                  <Input
-                    id="websiteUrl"
-                    value={profile.provider_info?.website_url || ""}
-                    onChange={(e) => handleInputChange("provider_info.website_url", e.target.value)}
-                    placeholder="https://example.com"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="facebookUrl">Facebook URL</Label>
-                  <Input
-                    id="facebookUrl"
-                    value={profile.provider_info?.facebook_url || ""}
-                    onChange={(e) => handleInputChange("provider_info.facebook_url", e.target.value)}
-                    placeholder="https://facebook.com/page"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="instagramUrl">Instagram URL</Label>
-                  <Input
-                    id="instagramUrl"
-                    value={profile.provider_info?.instagram_url || ""}
-                    onChange={(e) => handleInputChange("provider_info.instagram_url", e.target.value)}
-                    placeholder="https://instagram.com/handle"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="linkedinUrl">LinkedIn URL</Label>
-                  <Input
-                    id="linkedinUrl"
-                    value={profile.provider_info?.linkedin_url || ""}
-                    onChange={(e) => handleInputChange("provider_info.linkedin_url", e.target.value)}
-                    placeholder="https://linkedin.com/in/profile"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="tiktokUrl">TikTok URL</Label>
-                  <Input
-                    id="tiktokUrl"
-                    value={profile.provider_info?.tiktok_url || ""}
-                    onChange={(e) => handleInputChange("provider_info.tiktok_url", e.target.value)}
-                    placeholder="https://tiktok.com/@handle"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <div className="flex justify-end">
-            <Button type="submit" disabled={saving}>
-              {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              {saving ? "Saving Changes..." : "Save Changes"}
+    <div className="space-y-6">
+      <Card>
+        <CardContent className="pt-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input
+                id="fullName"
+                value={profile?.full_name || ""}
+                onChange={(e) => setProfile(prev => prev ? {...prev, full_name: e.target.value} : null)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input
+                id="phone"
+                value={profile?.phone || ""}
+                onChange={(e) => setProfile(prev => prev ? {...prev, phone: e.target.value} : null)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="location">Location</Label>
+              <Input
+                id="location"
+                value={profile?.location || ""}
+                onChange={(e) => setProfile(prev => prev ? {...prev, location: e.target.value} : null)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="role">Account Type</Label>
+              <Input id="role" value={profile?.role || ""} disabled className="bg-muted" />
+            </div>
+            
+            <Button onClick={handleSave} disabled={saving}>
+              {saving ? "Saving..." : "Save Changes"}
             </Button>
           </div>
-        </div>
-      </form>
+        </CardContent>
+      </Card>
+      
+      {profile?.role === "provider" && (
+        <Card>
+          <CardContent className="pt-6">
+            <h3 className="text-lg font-medium mb-4">Provider Information</h3>
+            <div className="space-y-4">
+              {/* This will be expanded in the future to edit provider-specific information */}
+              <p className="text-sm text-muted-foreground">
+                Additional provider settings will be available soon.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

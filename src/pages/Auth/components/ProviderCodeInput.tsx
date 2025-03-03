@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Check, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { ProviderSignupCode } from "@/types/database.types";
 
 interface ProviderCodeInputProps {
   code: string;
@@ -42,7 +43,9 @@ export function ProviderCodeInput({ code, onCodeChange, onValidCode }: ProviderC
 
       if (error) throw error;
 
-      if (!data) {
+      const providerCode = data as ProviderSignupCode;
+
+      if (!providerCode) {
         setIsValid(false);
         onValidCode(false);
         toast({
@@ -52,7 +55,7 @@ export function ProviderCodeInput({ code, onCodeChange, onValidCode }: ProviderC
         });
       } else {
         // Check if code is expired
-        if (new Date(data.expires_at) < new Date()) {
+        if (new Date(providerCode.expires_at) < new Date()) {
           setIsValid(false);
           onValidCode(false);
           toast({
@@ -62,7 +65,7 @@ export function ProviderCodeInput({ code, onCodeChange, onValidCode }: ProviderC
           });
         } else {
           setIsValid(true);
-          onValidCode(true, data.email);
+          onValidCode(true, providerCode.email);
           toast({
             title: "Code verified",
             description: "Provider code is valid",
