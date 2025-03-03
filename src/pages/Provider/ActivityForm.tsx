@@ -1,9 +1,11 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -15,6 +17,9 @@ const ActivityForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [activity, setActivity] = useState<Partial<Activity>>({
     title: "",
     description: "",
@@ -51,6 +56,10 @@ const ActivityForm = () => {
           ...data,
           duration: String(data.duration),
         });
+        
+        if (data.image_url) {
+          setImagePreview(data.image_url);
+        }
       }
     } catch (error: any) {
       toast({
@@ -58,6 +67,52 @@ const ActivityForm = () => {
         title: "Error",
         description: error.message,
       });
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setImageFile(file);
+    
+    // Create a preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!imageFile || !user) return null;
+    
+    setUploadingImage(true);
+    try {
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const filePath = `activity-images/${fileName}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('public')
+        .upload(filePath, imageFile);
+      
+      if (uploadError) throw uploadError;
+      
+      const { data } = supabase.storage
+        .from('public')
+        .getPublicUrl(filePath);
+        
+      return data.publicUrl;
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error uploading image",
+        description: error.message,
+      });
+      return null;
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -74,6 +129,12 @@ const ActivityForm = () => {
         throw new Error("Please fill in all required fields");
       }
 
+      // Upload image if there's a new one
+      let imageUrl = activity.image_url;
+      if (imageFile) {
+        imageUrl = await uploadImage();
+      }
+
       const activityData = {
         title: activity.title,
         description: activity.description,
@@ -84,7 +145,7 @@ const ActivityForm = () => {
         price: activity.price,
         duration: String(activity.duration),
         provider_id: user.id,
-        image_url: activity.image_url || null,
+        image_url: imageUrl,
       };
 
       if (id) {
@@ -148,6 +209,33 @@ const ActivityForm = () => {
             required
             rows={4}
           />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="image">Activity Image</Label>
+          <div className="flex flex-col gap-4">
+            <Input
+              id="image"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="cursor-pointer"
+            />
+            
+            {imagePreview && (
+              <Card className="overflow-hidden">
+                <CardContent className="p-2">
+                  <div className="aspect-video relative">
+                    <img 
+                      src={imagePreview} 
+                      alt="Activity preview" 
+                      className="w-full h-full object-cover rounded-md"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -245,8 +333,8 @@ const ActivityForm = () => {
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? "Saving..." : id ? "Update Activity" : "Create Activity"}
+          <Button type="submit" disabled={loading || uploadingImage}>
+            {loading || uploadingImage ? "Saving..." : id ? "Update Activity" : "Create Activity"}
           </Button>
         </div>
       </form>
