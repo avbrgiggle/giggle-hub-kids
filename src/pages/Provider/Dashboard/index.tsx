@@ -1,11 +1,11 @@
 
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ActivitiesTab } from "./components/ActivitiesTab";
-import { BookingsTab } from "./components/BookingsTab";
-import { MessagesTab } from "./components/MessagesTab";
-import { AnalyticsTab } from "./components/AnalyticsTab";
-import { ProfileTab } from "./components/ProfileTab"; // Fix the import to use named export
+import ActivitiesTab from "./components/ActivitiesTab";
+import BookingsTab from "./components/BookingsTab";
+import MessagesTab from "./components/MessagesTab";
+import AnalyticsTab from "./components/AnalyticsTab";
+import { ProfileTab } from "./components/ProfileTab"; // Using named import
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("activities");

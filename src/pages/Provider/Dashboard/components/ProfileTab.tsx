@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { Profile } from "@/types/database.types";
 
-// Export as named export, not default
+// Export as named export
 export function ProfileTab() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -37,7 +37,14 @@ export function ProfileTab() {
         
       if (error) throw error;
       
-      setProfile(data || {});
+      // Cast the role to ensure it matches the Profile type
+      if (data) {
+        const typedProfile: Partial<Profile> = {
+          ...data,
+          role: data.role as 'parent' | 'provider'
+        };
+        setProfile(typedProfile);
+      }
     } catch (error: any) {
       console.error("Error fetching profile:", error.message);
       toast({
