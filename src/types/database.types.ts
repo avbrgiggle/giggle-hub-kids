@@ -78,8 +78,8 @@ export type Message = {
   read: boolean;
   created_at: string;
   updated_at: string;
-  sender?: Profile;
-  receiver?: Profile;
+  sender?: Partial<Profile>;  // Change to Partial<Profile> to handle incomplete data
+  receiver?: Partial<Profile>;  // Change to Partial<Profile> to handle incomplete data
   booking?: Booking;
 };
 

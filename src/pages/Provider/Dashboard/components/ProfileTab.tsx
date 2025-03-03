@@ -1,21 +1,23 @@
 
 import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 import { Profile } from "@/types/database.types";
 
+// Export as named export, not default
 export function ProfileTab() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<Partial<Profile>>({});
 
   useEffect(() => {
     if (user) {
@@ -26,52 +28,57 @@ export function ProfileTab() {
   const fetchProfile = async () => {
     try {
       setLoading(true);
+      
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", user?.id)
         .single();
-
+        
       if (error) throw error;
-      setProfile(data as Profile);
+      
+      setProfile(data || {});
     } catch (error: any) {
       console.error("Error fetching profile:", error.message);
       toast({
         variant: "destructive",
-        title: "Error fetching profile",
-        description: error.message,
+        title: "Error",
+        description: "Failed to load profile data.",
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSave = async () => {
-    if (!profile) return;
-
+  const updateProfile = async () => {
+    if (!user) return;
+    
     try {
       setSaving(true);
+      
+      // Only update the fields that are allowed
       const { error } = await supabase
         .from("profiles")
         .update({
           full_name: profile.full_name,
           phone: profile.phone,
           location: profile.location,
+          provider_info: profile.provider_info || {}
         })
-        .eq("id", user?.id);
-
+        .eq("id", user.id);
+        
       if (error) throw error;
-
+      
       toast({
         title: "Profile updated",
-        description: "Your profile has been updated successfully",
+        description: "Your profile has been updated successfully.",
       });
     } catch (error: any) {
       console.error("Error updating profile:", error.message);
       toast({
         variant: "destructive",
-        title: "Error updating profile",
-        description: error.message,
+        title: "Error",
+        description: error.message || "Failed to update profile.",
       });
     } finally {
       setSaving(false);
@@ -79,66 +86,80 @@ export function ProfileTab() {
   };
 
   if (loading) {
-    return <div>Loading profile...</div>;
+    return (
+      <div className="flex justify-center items-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
       <Card>
-        <CardContent className="pt-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
-              <Input
-                id="fullName"
-                value={profile?.full_name || ""}
-                onChange={(e) => setProfile(prev => prev ? {...prev, full_name: e.target.value} : null)}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input
-                id="phone"
-                value={profile?.phone || ""}
-                onChange={(e) => setProfile(prev => prev ? {...prev, phone: e.target.value} : null)}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
-              <Input
-                id="location"
-                value={profile?.location || ""}
-                onChange={(e) => setProfile(prev => prev ? {...prev, location: e.target.value} : null)}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="role">Account Type</Label>
-              <Input id="role" value={profile?.role || ""} disabled className="bg-muted" />
-            </div>
-            
-            <Button onClick={handleSave} disabled={saving}>
-              {saving ? "Saving..." : "Save Changes"}
-            </Button>
+        <CardHeader>
+          <CardTitle>Provider Profile</CardTitle>
+          <CardDescription>
+            Manage your profile information that will be visible to parents.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="fullName">Provider Name</Label>
+            <Input
+              id="fullName"
+              value={profile.full_name || ""}
+              onChange={(e) => setProfile({...profile, full_name: e.target.value})}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone Number</Label>
+            <Input
+              id="phone"
+              value={profile.phone || ""}
+              onChange={(e) => setProfile({...profile, phone: e.target.value})}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="location">Location</Label>
+            <Input
+              id="location"
+              value={profile.location || ""}
+              onChange={(e) => setProfile({...profile, location: e.target.value})}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="description">About Your Services</Label>
+            <Textarea
+              id="description"
+              value={profile.provider_info?.description || ""}
+              onChange={(e) => setProfile({
+                ...profile, 
+                provider_info: {
+                  ...(profile.provider_info || {}),
+                  description: e.target.value
+                }
+              })}
+              placeholder="Describe your services, experience, and what makes your activities special..."
+              rows={5}
+            />
           </div>
         </CardContent>
+        <CardFooter>
+          <Button onClick={updateProfile} disabled={saving}>
+            {saving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              "Save Changes"
+            )}
+          </Button>
+        </CardFooter>
       </Card>
-      
-      {profile?.role === "provider" && (
-        <Card>
-          <CardContent className="pt-6">
-            <h3 className="text-lg font-medium mb-4">Provider Information</h3>
-            <div className="space-y-4">
-              {/* This will be expanded in the future to edit provider-specific information */}
-              <p className="text-sm text-muted-foreground">
-                Additional provider settings will be available soon.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }

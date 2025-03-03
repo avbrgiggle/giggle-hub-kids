@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { 
@@ -179,18 +178,7 @@ const ActivityDetail = () => {
       if (error) throw error;
 
       if (data) {
-        const typedMessages: Message[] = data.map(msg => ({
-          ...msg,
-          sender: {
-            ...msg.sender,
-            role: msg.sender.role as 'parent' | 'provider'
-          },
-          receiver: {
-            ...msg.receiver,
-            role: msg.receiver.role as 'parent' | 'provider'
-          }
-        }));
-        setMessages(typedMessages);
+        setMessages(data as Message[]);
       }
     } catch (error: any) {
       toast({

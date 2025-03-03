@@ -91,7 +91,7 @@ export function ProviderRequestForm() {
     setLoading(true);
     
     try {
-      const requestData: Partial<ProviderSignupRequest> = {
+      const requestData = {
         name: formData.name,
         email: formData.email,
         website_url: formData.websiteUrl || null,
@@ -103,7 +103,7 @@ export function ProviderRequestForm() {
         location: formData.location,
         age_range: formData.ageRange,
         duration_types: formData.durationTypes,
-        status: 'pending'
+        status: 'pending' as const
       };
 
       const { error } = await supabase
