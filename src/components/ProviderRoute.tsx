@@ -4,6 +4,7 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Profile } from "@/types/database.types";
 
 interface ProviderRouteProps {
   children: ReactNode;
@@ -11,7 +12,7 @@ interface ProviderRouteProps {
 
 const ProviderRoute = ({ children }: ProviderRouteProps) => {
   const { user, loading } = useAuth();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<Partial<Profile> | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
 
   useEffect(() => {
@@ -32,9 +33,17 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
           throw error;
         }
 
-        setProfile(data);
+        // Ensure the role is properly typed when setting the profile
+        if (data) {
+          const typedProfile: Partial<Profile> = {
+            ...data,
+            role: data.role as 'parent' | 'provider' | 'admin'
+          };
+          setProfile(typedProfile);
+        }
       } catch (error) {
         console.error("Error fetching profile:", error);
+        setProfile(null);
       } finally {
         setProfileLoading(false);
       }

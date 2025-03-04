@@ -53,12 +53,19 @@ export default function ProfilePage() {
       if (profileError) throw profileError;
 
       if (profileData) {
+        // Ensure the role is properly typed when setting the profile
         const typedProfile: Profile = {
           ...profileData,
-          role: profileData.role as 'parent' | 'provider',
+          role: profileData.role as 'parent' | 'provider' | 'admin',
           full_name: profileData.full_name || null,
           avatar_url: profileData.avatar_url || null,
-          phone: profileData.phone || null
+          phone: profileData.phone || null,
+          location: profileData.location || null,
+          username: profileData.username || null,
+          preferred_communication: profileData.preferred_communication || null,
+          preferred_payment_method: profileData.preferred_payment_method || null,
+          referral_code: profileData.referral_code || null,
+          provider_info: profileData.provider_info || null
         };
         setProfile(typedProfile);
       }

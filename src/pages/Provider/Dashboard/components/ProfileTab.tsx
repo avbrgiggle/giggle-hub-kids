@@ -1,26 +1,24 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2 } from "lucide-react";
-import { Profile } from "@/types/database.types";
+import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2, Check } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import type { Profile } from "@/types/database.types";
 
-export default function ProfileTab() {
-  const { toast } = useToast();
-  const { user } = useAuth();
+const ProfileTab = () => {
+  const [profile, setProfile] = useState<Partial<Profile>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [profile, setProfile] = useState<Partial<Profile>>({});
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) return;
-      
+
       try {
         setLoading(true);
         const { data, error } = await supabase
@@ -28,62 +26,59 @@ export default function ProfileTab() {
           .select("*")
           .eq("id", user.id)
           .single();
-        
+
         if (error) throw error;
-        
+
         if (data) {
-          setProfile({
+          // Ensure role is properly typed when setting the profile
+          const typedProfile: Partial<Profile> = {
             ...data,
-            role: data.role as 'provider' | 'parent' | 'admin'
-          });
+            role: data.role as 'parent' | 'provider' | 'admin',
+          };
+          setProfile(typedProfile);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error fetching profile:", error);
         toast({
-          title: "Error",
-          description: "Failed to load profile data",
           variant: "destructive",
+          title: "Error",
+          description: "Failed to load profile information",
         });
       } finally {
         setLoading(false);
       }
     };
-    
-    fetchProfile();
-  }, [user]);
 
-  const handleInputChange = (field: string, value: string) => {
-    setProfile((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    fetchProfile();
+  }, [user, toast]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setProfile(prev => ({ ...prev, [name]: value }));
   };
 
-  const saveProfile = async () => {
+  const handleSave = async () => {
+    if (!user) return;
+
     try {
       setSaving(true);
-      
       const { error } = await supabase
         .from("profiles")
-        .update({
-          full_name: profile.full_name,
-          phone: profile.phone,
-          location: profile.location,
-          // Add other fields as needed
-        })
-        .eq("id", user?.id);
+        .update(profile)
+        .eq("id", user.id);
 
       if (error) throw error;
-      
+
       toast({
-        title: "Success",
-        description: "Profile updated successfully",
+        title: "Profile Updated",
+        description: "Your profile has been updated successfully.",
       });
     } catch (error: any) {
+      console.error("Error updating profile:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message,
+        description: "Failed to update profile. Please try again.",
       });
     } finally {
       setSaving(false);
@@ -92,166 +87,110 @@ export default function ProfileTab() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="flex justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold">Provider Profile</h2>
-        <p className="text-muted-foreground">Manage your provider information</p>
+    <div className="grid gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Full Name</label>
+          <Input
+            type="text"
+            name="full_name"
+            value={profile.full_name || ""}
+            onChange={handleChange}
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Phone</label>
+          <Input
+            type="tel"
+            name="phone"
+            value={profile.phone || ""}
+            onChange={handleChange}
+            className="mt-1"
+          />
+        </div>
       </div>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card className="col-span-2">
-          <CardHeader>
-            <CardTitle>Basic Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Provider Name</Label>
-                <Input
-                  id="fullName"
-                  value={profile.full_name || ""}
-                  onChange={(e) => handleInputChange("full_name", e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  value={user?.email || ""}
-                  disabled
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  value={profile.phone || ""}
-                  onChange={(e) => handleInputChange("phone", e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  value={profile.location || ""}
-                  onChange={(e) => handleInputChange("location", e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">About</Label>
-              <Textarea
-                id="description"
-                rows={4}
-                value={profile.provider_info?.description || ""}
-                onChange={(e) => {
-                  const providerInfo = {...(profile.provider_info || {})};
-                  providerInfo.description = e.target.value;
-                  handleInputChange("provider_info", providerInfo);
-                }}
-                placeholder="Tell parents about your activities and services..."
-              />
-            </div>
-            <div className="flex justify-end">
-              <Button onClick={saveProfile} disabled={saving}>
-                {saving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving
-                  </>
-                ) : "Save Changes"}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Social Media Links</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="website">Website</Label>
-              <Input
-                id="website"
-                value={profile.provider_info?.website_url || ""}
-                onChange={(e) => {
-                  const providerInfo = {...(profile.provider_info || {})};
-                  providerInfo.website_url = e.target.value;
-                  handleInputChange("provider_info", providerInfo);
-                }}
-                placeholder="https://example.com"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="facebook">Facebook</Label>
-              <Input
-                id="facebook"
-                value={profile.provider_info?.facebook_url || ""}
-                onChange={(e) => {
-                  const providerInfo = {...(profile.provider_info || {})};
-                  providerInfo.facebook_url = e.target.value;
-                  handleInputChange("provider_info", providerInfo);
-                }}
-                placeholder="https://facebook.com/page"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="instagram">Instagram</Label>
-              <Input
-                id="instagram"
-                value={profile.provider_info?.instagram_url || ""}
-                onChange={(e) => {
-                  const providerInfo = {...(profile.provider_info || {})};
-                  providerInfo.instagram_url = e.target.value;
-                  handleInputChange("provider_info", providerInfo);
-                }}
-                placeholder="https://instagram.com/handle"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Business Settings</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="taxId">Tax ID</Label>
-              <Input
-                id="taxId"
-                value={profile.provider_info?.tax_id || ""}
-                onChange={(e) => {
-                  const providerInfo = {...(profile.provider_info || {})};
-                  providerInfo.tax_id = e.target.value;
-                  handleInputChange("provider_info", providerInfo);
-                }}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="paymentMethods">Accepted Payment Methods</Label>
-              <Input
-                id="paymentMethods"
-                value={profile.provider_info?.payment_methods || ""}
-                onChange={(e) => {
-                  const providerInfo = {...(profile.provider_info || {})};
-                  providerInfo.payment_methods = e.target.value;
-                  handleInputChange("provider_info", providerInfo);
-                }}
-                placeholder="Credit Card, Bank Transfer, PayPal"
-              />
-            </div>
-          </CardContent>
-        </Card>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Location</label>
+        <Input
+          type="text"
+          name="location"
+          value={profile.location || ""}
+          onChange={handleChange}
+          className="mt-1"
+        />
       </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Username</label>
+        <Input
+          type="text"
+          name="username"
+          value={profile.username || ""}
+          onChange={handleChange}
+          className="mt-1"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Preferred Communication</label>
+        <Input
+          type="text"
+          name="preferred_communication"
+          value={profile.preferred_communication || ""}
+          onChange={handleChange}
+          className="mt-1"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Preferred Payment Method</label>
+        <Input
+          type="text"
+          name="preferred_payment_method"
+          value={profile.preferred_payment_method || ""}
+          onChange={handleChange}
+          className="mt-1"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Referral Code</label>
+        <Input
+          type="text"
+          name="referral_code"
+          value={profile.referral_code || ""}
+          onChange={handleChange}
+          className="mt-1"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Provider Info</label>
+        <Textarea
+          name="provider_info"
+          value={(profile.provider_info as string) || ""}
+          onChange={handleChange}
+          className="mt-1"
+        />
+      </div>
+      <Button onClick={handleSave} disabled={saving}>
+        {saving ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Saving...
+          </>
+        ) : (
+          <>
+            Update Profile
+            <Check className="ml-2 h-4 w-4" />
+          </>
+        )}
+      </Button>
     </div>
   );
-}
+};
+
+export default ProfileTab;
