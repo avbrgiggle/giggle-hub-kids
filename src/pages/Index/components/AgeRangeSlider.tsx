@@ -1,4 +1,5 @@
 
+import React from "react";
 import { Slider } from "@/components/ui/slider";
 import { useTranslation } from "react-i18next";
 
@@ -9,7 +10,7 @@ interface AgeRangeSliderProps {
 
 export const AgeRangeSlider = ({ value, onChange }: AgeRangeSliderProps) => {
   const { t } = useTranslation();
-
+  
   return (
     <div className="max-w-md mx-auto">
       <p className="text-center mb-2 text-white/90">

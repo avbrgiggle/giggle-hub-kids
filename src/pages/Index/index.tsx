@@ -1,7 +1,8 @@
 
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import type { Activity } from "@/types/database.types";
 import { HeaderActions } from "./components/HeaderActions";
@@ -27,6 +28,7 @@ const Index = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchActivities();
@@ -69,17 +71,17 @@ const Index = () => {
     }
   };
 
-  const handleSave = (activityId: string) => {
-    toast({
-      title: "Activity saved",
-      description: "The activity has been saved to your favorites",
-    });
-  };
-
   const handleAgeRangeChange = (newValue: number[]) => {
     if (newValue[0] <= newValue[1]) {
       setAgeRange(newValue);
     }
+  };
+
+  const handleSave = (activityId: string) => {
+    toast({
+      title: t("activity.saved"),
+      description: t("activity.savedDesc"),
+    });
   };
 
   return (

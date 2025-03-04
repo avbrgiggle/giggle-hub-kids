@@ -1,4 +1,5 @@
 
+import React from "react";
 import { useTranslation } from "react-i18next";
 
 interface CategoriesProps {
@@ -7,7 +8,11 @@ interface CategoriesProps {
   onSelectCategory: (category: string) => void;
 }
 
-export const Categories = ({ categories, selectedCategory, onSelectCategory }: CategoriesProps) => {
+export const Categories = ({
+  categories,
+  selectedCategory,
+  onSelectCategory,
+}: CategoriesProps) => {
   const { t } = useTranslation();
 
   const getCategoryTranslationKey = (category: string) => {

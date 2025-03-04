@@ -1,6 +1,7 @@
 
+import React from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Clock, Heart } from "lucide-react";
+import { Heart, MapPin, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import type { Activity } from "@/types/database.types";
@@ -18,7 +19,7 @@ export const ActivityCard = ({ activity, onSave }: ActivityCardProps) => {
     if (!hours || !minutes) return duration;
     return `${hours}h ${minutes}m`;
   };
-
+  
   return (
     <Link 
       to={`/activities/${activity.id}`}

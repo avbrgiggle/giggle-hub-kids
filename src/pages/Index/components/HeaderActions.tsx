@@ -1,6 +1,7 @@
 
-import { useNavigate } from "react-router-dom";
-import { LogIn, UserCircle, LogOut } from "lucide-react";
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { LogIn, LogOut, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,26 +9,21 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useTranslation } from "react-i18next";
 import { LanguageSelector } from "@/components/LanguageSelector";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 export const HeaderActions = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const { toast } = useToast();
-
-  console.log("HeaderActions - Current user:", user);
 
   const handleLogout = async () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       navigate("/");
-      window.location.reload();
     } catch (error: any) {
       toast({
         variant: "destructive",

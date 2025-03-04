@@ -1,12 +1,13 @@
 
+import React from "react";
 import { Search, MapPin, Filter } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
 
 export const SearchBar = () => {
   const { t } = useTranslation();
-
+  
   return (
     <div className="max-w-2xl mx-auto flex gap-4 mb-8">
       <div className="relative flex-1">

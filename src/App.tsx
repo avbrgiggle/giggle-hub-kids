@@ -5,7 +5,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "@/components/ui/toaster";
 import Login from "@/pages/Auth/Login";
 import Signup from "@/pages/Auth/Signup";
-import Index from "@/pages/Index";
+import Index from "@/pages/Index/index";
 import ProfilePage from "@/pages/Profile/ProfilePage";
 import ActivityDetail from "@/pages/ActivityDetail";
 import ProviderDashboard from "@/pages/Provider/Dashboard";
