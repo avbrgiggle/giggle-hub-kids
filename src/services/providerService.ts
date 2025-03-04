@@ -176,29 +176,45 @@ export const updateAttendanceRecord = async (id: string, record: Partial<Attenda
 
 // Payment Management
 export const getPayments = async (providerId: string) => {
-  const { data, error } = await supabase
-    .from("payments")
-    .select(`
-      *,
-      student_activity:student_activity_id(
-        *,
-        student:student_id(*),
-        activity:activity_id(*)
-      )
-    `)
-    .order("date", { ascending: false });
+  // Get all student IDs for this provider
+  const { data: students, error: studentsError } = await supabase
+    .from("students")
+    .select("id")
+    .eq("provider_id", providerId);
 
-  if (error) {
-    console.error("Error fetching payments:", error);
-    throw error;
+  if (studentsError) {
+    console.error("Error fetching students:", studentsError);
+    throw studentsError;
   }
 
-  // Filter payments to only include those for the provider's students
-  const filteredPayments = data.filter(
-    payment => payment.student_activity?.student?.provider_id === providerId
-  );
+  const studentIds = students.map(s => s.id);
 
-  return filteredPayments as Payment[];
+  // Get all student activities for these students
+  const { data: activities, error: activitiesError } = await supabase
+    .from("student_activities")
+    .select("id")
+    .in("student_id", studentIds);
+
+  if (activitiesError) {
+    console.error("Error fetching student activities:", activitiesError);
+    throw activitiesError;
+  }
+
+  const activityIds = activities.map(a => a.id);
+
+  // Get payments for these student activities
+  const { data: payments, error: paymentsError } = await supabase
+    .from("payments")
+    .select("*")
+    .in("student_activity_id", activityIds)
+    .order("date", { ascending: false });
+
+  if (paymentsError) {
+    console.error("Error fetching payments:", paymentsError);
+    throw paymentsError;
+  }
+
+  return payments as Payment[];
 };
 
 export const addPayment = async (payment: Omit<Payment, "id" | "created_at" | "updated_at">) => {

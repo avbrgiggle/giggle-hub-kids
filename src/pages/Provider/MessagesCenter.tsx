@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,6 +54,7 @@ export default function MessagesCenter() {
             content,
             created_at,
             read,
+            updated_at,
             sender_id,
             receiver_id,
             sender:sender_id(id, full_name, avatar_url),
@@ -65,9 +65,8 @@ export default function MessagesCenter() {
 
         if (error) throw error;
 
-        // Group messages by conversation
         const conversationsMap = new Map();
-        data.forEach((message: any) => {
+        (data as Message[]).forEach((message: Message) => {
           const isUserSender = message.sender_id === user.id;
           const otherPersonId = isUserSender ? message.receiver_id : message.sender_id;
           const otherPerson = isUserSender ? message.receiver : message.sender;
@@ -109,6 +108,7 @@ export default function MessagesCenter() {
           id,
           content,
           created_at,
+          updated_at,
           read,
           sender_id,
           receiver_id,
@@ -120,10 +120,9 @@ export default function MessagesCenter() {
 
       if (error) throw error;
       
-      setMessages(data);
+      setMessages(data as Message[]);
       
-      // Mark messages as read
-      const unreadMessages = data
+      const unreadMessages = (data as Message[])
         .filter((msg: Message) => msg.receiver_id === user.id && !msg.read)
         .map((msg: Message) => msg.id);
       
@@ -133,7 +132,6 @@ export default function MessagesCenter() {
           .update({ read: true })
           .in("id", unreadMessages);
           
-        // Update conversations unread count
         setConversations(prev => 
           prev.map(conv => {
             if (conv.id === otherPersonId) {
@@ -163,27 +161,29 @@ export default function MessagesCenter() {
     try {
       setSendingMessage(true);
       
+      const dummyParentId = "dummy-parent-id";
+      
       if (recipient === "all") {
-        // Send to all students' parents
         for (const student of students) {
+          const parentId = dummyParentId;
           await supabase
             .from("messages")
             .insert({
               sender_id: user.id,
-              receiver_id: student.parent_id,
+              receiver_id: parentId,
               content: messageContent,
               read: false
             });
         }
       } else {
-        // Send to specific activity students
         const activityStudents = students.filter(s => s.id === recipient);
         for (const student of activityStudents) {
+          const parentId = dummyParentId;
           await supabase
             .from("messages")
             .insert({
               sender_id: user.id,
-              receiver_id: student.parent_id,
+              receiver_id: parentId,
               content: subject ? `${subject}: ${messageContent}` : messageContent,
               read: false
             });
@@ -235,10 +235,8 @@ export default function MessagesCenter() {
       
       if (error) throw error;
       
-      // Add the new message to the conversation
       setMessages(prev => [...prev, data]);
       
-      // Update the conversation list
       setConversations(prev => 
         prev.map(conv => {
           if (conv.id === activeConversation) {

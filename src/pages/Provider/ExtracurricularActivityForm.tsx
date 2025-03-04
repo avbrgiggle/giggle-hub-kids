@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -78,8 +77,11 @@ const ExtracurricularActivityForm = () => {
         });
         
         // Parse the schedule from provider_info if it exists
-        if (data.provider_info?.schedule) {
-          setSchedule(data.provider_info.schedule);
+        if (data.provider_info && typeof data.provider_info === 'object') {
+          const providerInfo = data.provider_info as Record<string, any>;
+          if (providerInfo.schedule) {
+            setSchedule(providerInfo.schedule);
+          }
         }
       }
     } catch (error: any) {
@@ -172,7 +174,8 @@ const ExtracurricularActivityForm = () => {
       }
 
       // Include schedule in provider_info
-      const providerInfo = activity.provider_info || {};
+      const providerInfo: Record<string, any> = activity.provider_id ? 
+        (typeof activity.provider_id === 'object' ? activity.provider_id : {}) : {};
       providerInfo.schedule = schedule;
 
       const activityData = {

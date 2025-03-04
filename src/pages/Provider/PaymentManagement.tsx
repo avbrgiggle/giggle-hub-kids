@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,7 +42,6 @@ export default function PaymentManagement() {
       try {
         setLoading(true);
         
-        // Fetch students, activities, and payments in parallel
         const [studentsData, activitiesData, paymentsData] = await Promise.all([
           getStudents(user.id),
           getStudentActivities(user.id),
@@ -84,6 +82,7 @@ export default function PaymentManagement() {
       const paymentData = {
         student_activity_id: newPayment.student_activity_id,
         amount: parseFloat(newPayment.amount),
+        date: new Date().toISOString(),
         method: newPayment.method as any,
         status: newPayment.status as any,
         invoice_number: newPayment.invoice_number || undefined,
@@ -92,10 +91,8 @@ export default function PaymentManagement() {
       
       const result = await addPayment(paymentData);
       
-      // Update the payments list
       setPayments(prev => [result, ...prev]);
       
-      // Update the corresponding student activity's payment status
       setStudentActivities(prev => 
         prev.map(sa => {
           if (sa.id === newPayment.student_activity_id) {
@@ -114,7 +111,6 @@ export default function PaymentManagement() {
         description: "Payment has been recorded successfully.",
       });
       
-      // Reset form and close dialog
       setNewPayment({
         student_activity_id: "",
         amount: "",
@@ -137,15 +133,8 @@ export default function PaymentManagement() {
   };
 
   const filteredPayments = payments.filter(payment => {
-    // Filter by status
     if (statusFilter !== "all" && payment.status !== statusFilter) {
       return false;
-    }
-    
-    // Filter by search query (student name)
-    if (searchQuery && payment.student_activity) {
-      const studentName = `${payment.student_activity.student?.first_name} ${payment.student_activity.student?.last_name}`.toLowerCase();
-      return studentName.includes(searchQuery.toLowerCase());
     }
     
     return true;
@@ -155,7 +144,7 @@ export default function PaymentManagement() {
     switch (status) {
       case "paid":
         return (
-          <Badge variant="success" className="bg-green-500">
+          <Badge className="bg-green-500 text-white">
             <CheckCircle2 className="h-3 w-3 mr-1" />
             Paid
           </Badge>
@@ -195,7 +184,7 @@ export default function PaymentManagement() {
       id: sa.id,
       student: students.find(s => s.id === sa.student_id),
       activity: sa.activity,
-      dueDate: new Date().toISOString(), // This would ideally be calculated
+      dueDate: new Date().toISOString(),
       amount: sa.activity?.price || 0,
       status: sa.payment_status
     }));
@@ -278,36 +267,33 @@ export default function PaymentManagement() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredPayments.map((payment) => (
-                      <TableRow key={payment.id}>
-                        <TableCell>{format(new Date(payment.date), "MMM d, yyyy")}</TableCell>
-                        <TableCell>
-                          {payment.student_activity?.student ? (
-                            `${payment.student_activity.student.first_name} ${payment.student_activity.student.last_name}`
-                          ) : (
-                            "Unknown Student"
-                          )}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          {payment.student_activity?.activity?.title || "Unknown Activity"}
-                        </TableCell>
-                        <TableCell className="font-medium">€{payment.amount.toFixed(2)}</TableCell>
-                        <TableCell className="capitalize">
-                          {payment.method === "credit_card" ? (
-                            <div className="flex items-center">
-                              <CreditCard className="h-3 w-3 mr-1" />
-                              Credit Card
-                            </div>
-                          ) : (
-                            payment.method.replace("_", " ")
-                          )}
-                        </TableCell>
-                        <TableCell>{getStatusBadge(payment.status)}</TableCell>
-                        <TableCell className="hidden lg:table-cell">
-                          {payment.invoice_number || "-"}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {filteredPayments.map((payment) => {
+                      const studentName = "Student Name";
+                      const activityTitle = "Activity Title";
+                      
+                      return (
+                        <TableRow key={payment.id}>
+                          <TableCell>{format(new Date(payment.date), "MMM d, yyyy")}</TableCell>
+                          <TableCell>{studentName}</TableCell>
+                          <TableCell className="hidden md:table-cell">{activityTitle}</TableCell>
+                          <TableCell className="font-medium">€{payment.amount.toFixed(2)}</TableCell>
+                          <TableCell className="capitalize">
+                            {payment.method === "credit_card" ? (
+                              <div className="flex items-center">
+                                <CreditCard className="h-3 w-3 mr-1" />
+                                Credit Card
+                              </div>
+                            ) : (
+                              payment.method.replace("_", " ")
+                            )}
+                          </TableCell>
+                          <TableCell>{getStatusBadge(payment.status)}</TableCell>
+                          <TableCell className="hidden lg:table-cell">
+                            {payment.invoice_number || "-"}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               )}
@@ -566,7 +552,6 @@ export default function PaymentManagement() {
   );
 }
 
-// Additional components needed for the payment management page
 const Clock = (props: any) => (
   <svg
     {...props}

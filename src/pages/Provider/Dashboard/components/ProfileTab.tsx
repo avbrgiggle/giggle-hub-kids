@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,34 +18,39 @@ export default function ProfileTab() {
   const [profile, setProfile] = useState<Partial<Profile>>({});
 
   useEffect(() => {
-    if (user) {
-      fetchProfile();
-    }
+    const fetchProfile = async () => {
+      if (!user) return;
+      
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+        
+        if (error) throw error;
+        
+        if (data) {
+          setProfile({
+            ...data,
+            role: data.role as 'provider' | 'parent' | 'admin'
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load profile data",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchProfile();
   }, [user]);
-
-  const fetchProfile = async () => {
-    try {
-      setLoading(true);
-      
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user?.id)
-        .single();
-
-      if (error) throw error;
-      
-      setProfile(data || {});
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleInputChange = (field: string, value: string) => {
     setProfile((prev) => ({
