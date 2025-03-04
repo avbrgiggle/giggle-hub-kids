@@ -5,11 +5,16 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import type { Activity } from "@/types/database.types";
+import type { Activity, ActivityImage } from "@/types/database.types";
 import ActivityBasicDetails from "./components/ActivityBasicDetails";
 import ActivityImageUpload from "./components/ActivityImageUpload";
 import ActivityDetailsFields from "./components/ActivityDetailsFields";
-import { uploadActivityImage } from "@/services/imageUploadService";
+import { 
+  uploadActivityImage, 
+  saveActivityImages, 
+  fetchActivityImages,
+  deleteActivityImage
+} from "@/services/imageUploadService";
 
 const ActivityForm = () => {
   const { id } = useParams();
@@ -17,9 +22,10 @@ const ActivityForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [existingImages, setExistingImages] = useState<ActivityImage[]>([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
   const [activity, setActivity] = useState<Partial<Activity>>({
     title: "",
     description: "",
@@ -39,6 +45,7 @@ const ActivityForm = () => {
 
     if (id) {
       fetchActivity();
+      fetchImages();
     }
   }, [id, user, navigate]);
 
@@ -56,10 +63,6 @@ const ActivityForm = () => {
           ...data,
           duration: String(data.duration),
         });
-        
-        if (data.image_url) {
-          setImagePreview(data.image_url);
-        }
       }
     } catch (error: any) {
       toast({
@@ -67,6 +70,28 @@ const ActivityForm = () => {
         title: "Error",
         description: error.message,
       });
+    }
+  };
+
+  const fetchImages = async () => {
+    if (!id) return;
+    
+    try {
+      const images = await fetchActivityImages(id);
+      setExistingImages(images);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load images",
+      });
+    }
+  };
+
+  const handleDeleteImage = async (imageId: string) => {
+    const success = await deleteActivityImage(imageId);
+    if (!success) {
+      throw new Error("Failed to delete image");
     }
   };
 
@@ -83,12 +108,31 @@ const ActivityForm = () => {
         throw new Error("Please fill in all required fields");
       }
 
-      // Upload image if there's a new one
-      let imageUrl = activity.image_url;
-      if (imageFile && user) {
-        setUploadingImage(true);
-        imageUrl = await uploadActivityImage(imageFile, user.id);
-        setUploadingImage(false);
+      // Upload new images if there are any
+      let uploadedImageUrls: string[] = [];
+      
+      if (imageFiles.length > 0) {
+        setUploadingImages(true);
+        
+        // Upload all images
+        const uploadPromises = imageFiles.map(file => 
+          uploadActivityImage(file, user.id)
+        );
+        
+        const results = await Promise.all(uploadPromises);
+        uploadedImageUrls = results.filter((url): url is string => url !== null);
+        
+        setUploadingImages(false);
+      }
+      
+      // Determine the main image URL
+      let mainImageUrl = activity.image_url;
+      
+      // If we have a new main image (first in the list), use it
+      if (uploadedImageUrls.length > 0 && !existingImages.length && !mainImageUrl) {
+        mainImageUrl = uploadedImageUrls[0];
+        // Remove it from the additional images
+        uploadedImageUrls = uploadedImageUrls.slice(1);
       }
 
       const activityData = {
@@ -101,10 +145,13 @@ const ActivityForm = () => {
         price: activity.price,
         duration: String(activity.duration),
         provider_id: user.id,
-        image_url: imageUrl,
+        image_url: mainImageUrl,
       };
 
+      let activityId = id;
+      
       if (id) {
+        // Update existing activity
         const { error } = await supabase
           .from("activities")
           .update(activityData)
@@ -112,11 +159,19 @@ const ActivityForm = () => {
 
         if (error) throw error;
       } else {
-        const { error } = await supabase
+        // Create new activity
+        const { data, error } = await supabase
           .from("activities")
-          .insert([activityData]);
+          .insert([activityData])
+          .select();
 
         if (error) throw error;
+        activityId = data?.[0]?.id;
+      }
+      
+      // Save additional images to activity_images table
+      if (uploadedImageUrls.length > 0 && activityId) {
+        await saveActivityImages(activityId, uploadedImageUrls);
       }
 
       toast({
@@ -148,9 +203,11 @@ const ActivityForm = () => {
         />
 
         <ActivityImageUpload 
-          initialImageUrl={activity.image_url} 
-          onImageChange={setImageFile}
-          onImagePreviewChange={setImagePreview}
+          initialImages={existingImages}
+          mainImageUrl={activity.image_url} 
+          onImagesChange={setImageFiles}
+          onImagesPreviewChange={setImagePreviews}
+          onImageDelete={handleDeleteImage}
         />
 
         <ActivityDetailsFields 
@@ -166,8 +223,8 @@ const ActivityForm = () => {
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={loading || uploadingImage}>
-            {loading || uploadingImage ? "Saving..." : id ? "Update Activity" : "Create Activity"}
+          <Button type="submit" disabled={loading || uploadingImages}>
+            {loading || uploadingImages ? "Saving..." : id ? "Update Activity" : "Create Activity"}
           </Button>
         </div>
       </form>

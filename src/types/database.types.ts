@@ -44,6 +44,15 @@ export type Activity = {
   created_at: string;
   updated_at: string;
   provider?: Partial<Profile>;  // Make provider fields optional
+  images?: ActivityImage[];  // Add relationship to activity images
+};
+
+export type ActivityImage = {
+  id: string;
+  activity_id: string;
+  image_url: string;
+  created_at: string;
+  updated_at: string;
 };
 
 export type ActivityDate = {
