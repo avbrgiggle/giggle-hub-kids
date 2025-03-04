@@ -35,6 +35,7 @@ const ActivityForm = () => {
     capacity: 10,
     price: 0,
     duration: "1 hour",
+    is_extracurricular: false,
   });
 
   useEffect(() => {
@@ -55,6 +56,7 @@ const ActivityForm = () => {
         .from("activities")
         .select("*")
         .eq("id", id)
+        .eq("is_extracurricular", false)
         .single();
 
       if (error) throw error;
@@ -146,6 +148,7 @@ const ActivityForm = () => {
         duration: String(activity.duration),
         provider_id: user.id,
         image_url: mainImageUrl,
+        is_extracurricular: false
       };
 
       let activityId = id;

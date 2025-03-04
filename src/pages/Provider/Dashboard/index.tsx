@@ -2,44 +2,53 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ActivitiesTab from "./components/ActivitiesTab";
-import BookingsTab from "./components/BookingsTab";
+import StudentsTab from "./components/StudentsTab";
 import MessagesTab from "./components/MessagesTab";
+import PaymentsTab from "./components/PaymentsTab";
 import AnalyticsTab from "./components/AnalyticsTab";
-import { ProfileTab } from "./components/ProfileTab"; // Using named import
+import ProfileTab from "./components/ProfileTab";
 
-const Dashboard = () => {
+export default function ProviderDashboard() {
   const [activeTab, setActiveTab] = useState("activities");
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-8">Provider Dashboard</h1>
-
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+      <h1 className="text-3xl font-bold mb-6">Provider Dashboard</h1>
+      
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid grid-cols-6 mb-8">
           <TabsTrigger value="activities">Activities</TabsTrigger>
-          <TabsTrigger value="bookings">Bookings</TabsTrigger>
+          <TabsTrigger value="students">Students</TabsTrigger>
           <TabsTrigger value="messages">Messages</TabsTrigger>
+          <TabsTrigger value="payments">Payments</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="profile">Profile</TabsTrigger>
         </TabsList>
-        <TabsContent value="activities">
+
+        <TabsContent value="activities" className="space-y-4">
           <ActivitiesTab />
         </TabsContent>
-        <TabsContent value="bookings">
-          <BookingsTab />
+        
+        <TabsContent value="students" className="space-y-4">
+          <StudentsTab />
         </TabsContent>
-        <TabsContent value="messages">
+        
+        <TabsContent value="messages" className="space-y-4">
           <MessagesTab />
         </TabsContent>
-        <TabsContent value="analytics">
+        
+        <TabsContent value="payments" className="space-y-4">
+          <PaymentsTab />
+        </TabsContent>
+        
+        <TabsContent value="analytics" className="space-y-4">
           <AnalyticsTab />
         </TabsContent>
-        <TabsContent value="profile">
+        
+        <TabsContent value="profile" className="space-y-4">
           <ProfileTab />
         </TabsContent>
       </Tabs>
     </div>
   );
-};
-
-export default Dashboard;
+}

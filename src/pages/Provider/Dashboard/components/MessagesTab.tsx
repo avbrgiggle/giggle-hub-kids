@@ -1,35 +1,37 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { MessageSquare } from "lucide-react";
 
 export default function MessagesTab() {
+  const [messages] = useState([]);
+
   return (
     <div>
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-2">Messages</h2>
-        <p className="text-muted-foreground">Communicate with parents and manage your conversations</p>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-semibold">Messages</h2>
+        <Button>
+          <MessageSquare className="h-4 w-4 mr-2" />
+          New Message
+        </Button>
       </div>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Messaging System</CardTitle>
-          <CardDescription>
-            This feature will be implemented in future updates.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-center py-8 text-muted-foreground">
-            The messaging system is coming soon. You'll be able to:
-          </p>
-          <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-            <li>Chat directly with parents</li>
-            <li>Send group messages to activity participants</li>
-            <li>Share documents and images</li>
-            <li>Create message templates</li>
-            <li>Schedule automated messages</li>
-            <li>Receive notifications for new messages</li>
-          </ul>
-        </CardContent>
-      </Card>
+
+      {messages.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-8">
+            <p className="text-muted-foreground mb-4">
+              You don't have any messages yet.
+            </p>
+            <p className="text-sm text-center max-w-md">
+              Messages from parents regarding bookings and inquiries will appear here.
+              You can also initiate new conversations with parents.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <></>
+      )}
     </div>
   );
 }

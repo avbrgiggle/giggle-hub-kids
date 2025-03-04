@@ -18,7 +18,7 @@ export type Profile = {
   full_name: string | null;
   avatar_url: string | null;
   phone: string | null;
-  role: 'parent' | 'provider';
+  role: 'parent' | 'provider' | 'admin';
   location: string | null;
   username: string | null;
   preferred_communication: string | null;
@@ -45,6 +45,7 @@ export type Activity = {
   updated_at: string;
   provider?: Partial<Profile>;  // Make provider fields optional
   images?: ActivityImage[];  // Add relationship to activity images
+  is_extracurricular?: boolean;  // Flag to identify extracurricular activities
 };
 
 export type ActivityImage = {
@@ -116,6 +117,62 @@ export type ProviderSignupCode = {
   email: string;
   expires_at: string;
   used: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Student = {
+  id: string;
+  provider_id: string;
+  first_name: string;
+  last_name: string;
+  date_of_birth: string;
+  parent_name: string;
+  parent_email: string;
+  parent_phone: string;
+  emergency_contact: string;
+  medical_notes?: string;
+  allergies?: string[];
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type StudentActivity = {
+  id: string;
+  student_id: string;
+  activity_id: string;
+  start_date: string;
+  end_date?: string;
+  attendance_days: string[];  // e.g., ["Monday", "Wednesday", "Friday"]
+  active: boolean;
+  payment_status: 'paid' | 'pending' | 'overdue';
+  last_payment_date?: string;
+  created_at: string;
+  updated_at: string;
+  student?: Student;
+  activity?: Activity;
+};
+
+export type AttendanceRecord = {
+  id: string;
+  student_activity_id: string;
+  date: string;
+  status: 'present' | 'absent' | 'late' | 'excused';
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Payment = {
+  id: string;
+  student_activity_id: string;
+  amount: number;
+  date: string;
+  method: 'credit_card' | 'bank_transfer' | 'paypal' | 'mb_way' | 'other';
+  status: 'paid' | 'pending' | 'failed' | 'refunded';
+  invoice_number?: string;
+  notes?: string;
   created_at: string;
   updated_at: string;
 };

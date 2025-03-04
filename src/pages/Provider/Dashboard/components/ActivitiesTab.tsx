@@ -1,58 +1,66 @@
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuth } from "@/contexts/AuthContext";
+import { PlusCircle, Loader2, Calendar, BookOpen } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
-import { PlusCircle, Loader2, Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import type { Activity } from "@/types/database.types";
+import { useAuth } from "@/contexts/AuthContext";
+import { Activity } from "@/types/database.types";
 
 export default function ActivitiesTab() {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [activities, setActivities] = useState<Activity[]>([]);
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
+  const [regularActivities, setRegularActivities] = useState<Activity[]>([]);
+  const [extracurricularActivities, setExtracurricularActivities] = useState<Activity[]>([]);
 
   useEffect(() => {
-    if (!user) return;
-    fetchActivities();
+    if (user) {
+      fetchActivities();
+    }
   }, [user]);
-
-  useEffect(() => {
-    filterActivities();
-  }, [activities, searchQuery, categoryFilter]);
 
   const fetchActivities = async () => {
     try {
-      const { data, error } = await supabase
+      setLoading(true);
+      
+      // Fetch regular activities
+      const { data: regularData, error: regularError } = await supabase
         .from("activities")
         .select("*")
         .eq("provider_id", user?.id)
+        .eq("is_extracurricular", false)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (regularError) throw regularError;
+      
+      // Fetch extracurricular activities
+      const { data: extracurricularData, error: extracurricularError } = await supabase
+        .from("activities")
+        .select("*")
+        .eq("provider_id", user?.id)
+        .eq("is_extracurricular", true)
+        .order("created_at", { ascending: false });
+
+      if (extracurricularError) throw extracurricularError;
       
       // Convert duration to string type for each activity
-      const formattedActivities = (data || []).map(activity => ({
+      const formattedRegularActivities = (regularData || []).map(activity => ({
         ...activity,
         duration: String(activity.duration)
       }));
       
-      setActivities(formattedActivities);
+      const formattedExtracurricularActivities = (extracurricularData || []).map(activity => ({
+        ...activity,
+        duration: String(activity.duration)
+      }));
+      
+      setRegularActivities(formattedRegularActivities);
+      setExtracurricularActivities(formattedExtracurricularActivities);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -62,33 +70,6 @@ export default function ActivitiesTab() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const filterActivities = () => {
-    let filtered = [...activities];
-    
-    // Apply search filter
-    if (searchQuery) {
-      filtered = filtered.filter(activity => 
-        activity.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        activity.description.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-    
-    // Apply category filter
-    if (categoryFilter !== "all") {
-      filtered = filtered.filter(activity => 
-        activity.category.toLowerCase() === categoryFilter.toLowerCase()
-      );
-    }
-    
-    setFilteredActivities(filtered);
-  };
-
-  const getUniqueCategories = () => {
-    const categories = new Set<string>();
-    activities.forEach(activity => categories.add(activity.category.toLowerCase()));
-    return Array.from(categories);
   };
 
   if (loading) {
@@ -101,92 +82,116 @@ export default function ActivitiesTab() {
 
   return (
     <div>
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">My Activities</h2>
-        <Button onClick={() => navigate("/provider/activities/new")}>
-          <PlusCircle className="h-4 w-4 mr-2" />
-          Add Activity
-        </Button>
-      </div>
-      
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="relative flex-grow">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search activities..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
+        <div className="flex gap-2">
+          <Button onClick={() => navigate("/provider/activities/new")}>
+            <PlusCircle className="h-4 w-4 mr-2" />
+            Add Regular Activity
+          </Button>
+          <Button onClick={() => navigate("/provider/extracurricular/new")} variant="outline">
+            <BookOpen className="h-4 w-4 mr-2" />
+            Add Extracurricular
+          </Button>
         </div>
-        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-full md:w-[200px]">
-            <SelectValue placeholder="Filter by category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            {getUniqueCategories().map(category => (
-              <SelectItem key={category} value={category}>
-                {category.charAt(0).toUpperCase() + category.slice(1)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
 
-      {filteredActivities.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <p className="text-muted-foreground mb-4">
-              {activities.length === 0 
-                ? "You haven't created any activities yet." 
-                : "No activities match your search criteria."}
-            </p>
-            {activities.length === 0 && (
-              <Button onClick={() => navigate("/provider/activities/new")}>
-                Create Your First Activity
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredActivities.map((activity) => (
-            <Card key={activity.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="line-clamp-1">{activity.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="aspect-video rounded-md overflow-hidden mb-4">
-                  <img
-                    src={activity.image_url || "https://images.unsplash.com/photo-1472396961693-142e6e269027"}
-                    alt={activity.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="flex flex-wrap gap-2 mb-3">
-                  <span className="bg-primary/10 text-primary px-2 py-1 rounded-full text-xs">
-                    {activity.category}
-                  </span>
-                  <span className="bg-secondary/10 text-secondary px-2 py-1 rounded-full text-xs">
-                    {activity.age_range}
-                  </span>
-                </div>
-                <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                  {activity.description}
+      <Tabs defaultValue="regular" className="w-full">
+        <TabsList className="w-full mb-6">
+          <TabsTrigger value="regular" className="flex-1">
+            <Calendar className="h-4 w-4 mr-2" />
+            Regular Activities
+          </TabsTrigger>
+          <TabsTrigger value="extracurricular" className="flex-1">
+            <BookOpen className="h-4 w-4 mr-2" />
+            Extracurricular Activities
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="regular">
+          {regularActivities.length === 0 ? (
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center py-8">
+                <p className="text-muted-foreground mb-4">
+                  You haven't created any regular activities yet.
                 </p>
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => navigate(`/provider/activities/${activity.id}`)}
-                >
-                  Manage Activity
+                <Button onClick={() => navigate("/provider/activities/new")}>
+                  Create Your First Activity
                 </Button>
               </CardContent>
             </Card>
-          ))}
-        </div>
-      )}
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {regularActivities.map((activity) => (
+                <ActivityCard 
+                  key={activity.id} 
+                  activity={activity} 
+                  onClick={() => navigate(`/provider/activities/${activity.id}`)}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="extracurricular">
+          {extracurricularActivities.length === 0 ? (
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center py-8">
+                <p className="text-muted-foreground mb-4">
+                  You haven't created any extracurricular activities yet.
+                </p>
+                <Button onClick={() => navigate("/provider/extracurricular/new")}>
+                  Create Your First Extracurricular Activity
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {extracurricularActivities.map((activity) => (
+                <ActivityCard 
+                  key={activity.id} 
+                  activity={activity} 
+                  onClick={() => navigate(`/provider/extracurricular/${activity.id}`)}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
+  );
+}
+
+interface ActivityCardProps {
+  activity: Activity;
+  onClick: () => void;
+}
+
+function ActivityCard({ activity, onClick }: ActivityCardProps) {
+  return (
+    <Card className="hover:shadow-lg transition-shadow">
+      <CardHeader>
+        <CardTitle>{activity.title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="aspect-video rounded-md overflow-hidden mb-4">
+          <img
+            src={activity.image_url || "https://images.unsplash.com/photo-1472396961693-142e6e269027"}
+            alt={activity.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+          {activity.description}
+        </p>
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={onClick}
+        >
+          Manage Activity
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
