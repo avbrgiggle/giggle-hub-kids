@@ -19,9 +19,11 @@ export type Database = {
           duration: unknown
           id: string
           image_url: string | null
+          is_extracurricular: boolean | null
           location: string
           price: number
           provider_id: string | null
+          provider_info: Json | null
           title: string
           updated_at: string
         }
@@ -34,9 +36,11 @@ export type Database = {
           duration: unknown
           id?: string
           image_url?: string | null
+          is_extracurricular?: boolean | null
           location: string
           price: number
           provider_id?: string | null
+          provider_info?: Json | null
           title: string
           updated_at?: string
         }
@@ -49,9 +53,11 @@ export type Database = {
           duration?: unknown
           id?: string
           image_url?: string | null
+          is_extracurricular?: boolean | null
           location?: string
           price?: number
           provider_id?: string | null
+          provider_info?: Json | null
           title?: string
           updated_at?: string
         }
@@ -128,6 +134,44 @@ export type Database = {
             columns: ["activity_id"]
             isOneToOne: false
             referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      attendance_records: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          notes: string | null
+          status: string
+          student_activity_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          notes?: string | null
+          status: string
+          student_activity_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          student_activity_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_records_student_activity_id_fkey"
+            columns: ["student_activity_id"]
+            isOneToOne: false
+            referencedRelation: "student_activities"
             referencedColumns: ["id"]
           },
         ]
@@ -292,6 +336,53 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          date: string
+          id: string
+          invoice_number: string | null
+          method: string
+          notes: string | null
+          status: string
+          student_activity_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          date?: string
+          id?: string
+          invoice_number?: string | null
+          method: string
+          notes?: string | null
+          status: string
+          student_activity_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          date?: string
+          id?: string
+          invoice_number?: string | null
+          method?: string
+          notes?: string | null
+          status?: string
+          student_activity_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_student_activity_id_fkey"
+            columns: ["student_activity_id"]
+            isOneToOne: false
+            referencedRelation: "student_activities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -423,6 +514,122 @@ export type Database = {
           website_url?: string | null
         }
         Relationships: []
+      }
+      student_activities: {
+        Row: {
+          active: boolean
+          activity_id: string
+          attendance_days: string[] | null
+          created_at: string
+          end_date: string | null
+          id: string
+          last_payment_date: string | null
+          payment_status: string
+          start_date: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          activity_id: string
+          attendance_days?: string[] | null
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          last_payment_date?: string | null
+          payment_status?: string
+          start_date: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          activity_id?: string
+          attendance_days?: string[] | null
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          last_payment_date?: string | null
+          payment_status?: string
+          start_date?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_activities_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_activities_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      students: {
+        Row: {
+          allergies: string[] | null
+          created_at: string
+          date_of_birth: string
+          emergency_contact: string | null
+          first_name: string
+          id: string
+          last_name: string
+          medical_notes: string | null
+          notes: string | null
+          parent_email: string
+          parent_name: string
+          parent_phone: string
+          provider_id: string
+          updated_at: string
+        }
+        Insert: {
+          allergies?: string[] | null
+          created_at?: string
+          date_of_birth: string
+          emergency_contact?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          medical_notes?: string | null
+          notes?: string | null
+          parent_email: string
+          parent_name: string
+          parent_phone: string
+          provider_id: string
+          updated_at?: string
+        }
+        Update: {
+          allergies?: string[] | null
+          created_at?: string
+          date_of_birth?: string
+          emergency_contact?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          medical_notes?: string | null
+          notes?: string | null
+          parent_email?: string
+          parent_name?: string
+          parent_phone?: string
+          provider_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "students_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
