@@ -44,13 +44,22 @@ export default function ProfilePage() {
 
   const fetchProfileAndChildren = async () => {
     try {
+      // Use .eq() to ensure we're only getting the profile for the current user
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", user?.id)
-        .single();
+        .maybeSingle();  // Changed from .single() to .maybeSingle() to handle the case when no profile is found
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error("Error fetching profile:", profileError);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load profile information.",
+        });
+        return;
+      }
 
       if (profileData) {
         // Ensure the role is properly typed when setting the profile
@@ -68,14 +77,22 @@ export default function ProfilePage() {
           provider_info: profileData.provider_info || null
         };
         setProfile(typedProfile);
+      } else {
+        // Handle the case when no profile is found
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Profile not found, please contact support."
+        });
       }
 
       await fetchChildren();
     } catch (error: any) {
+      console.error("Error in fetchProfileAndChildren:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message,
+        description: error.message || "An unexpected error occurred",
       });
     } finally {
       setLoading(false);

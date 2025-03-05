@@ -27,10 +27,13 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
           .from("profiles")
           .select("*")
           .eq("id", user.id)
-          .single();
+          .maybeSingle();  // Use maybeSingle instead of single to handle not found case without error
 
         if (error) {
-          throw error;
+          console.error("Error fetching profile:", error);
+          setProfile(null);
+          setProfileLoading(false);
+          return;
         }
 
         // Ensure the role is properly typed when setting the profile
@@ -40,6 +43,8 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
             role: data.role as 'parent' | 'provider' | 'admin'
           };
           setProfile(typedProfile);
+        } else {
+          setProfile(null);
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
