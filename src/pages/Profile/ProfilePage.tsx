@@ -42,6 +42,46 @@ export default function ProfilePage() {
     fetchProfileAndChildren();
   }, [user, navigate]);
 
+  const createDefaultProfile = async () => {
+    try {
+      // Create a default profile for the user
+      const { error } = await supabase.from("profiles").insert({
+        id: user?.id,
+        full_name: user?.email?.split('@')[0] || 'New User',
+        role: 'provider', // Since this is a provider test user
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
+
+      if (error) {
+        console.error("Error creating profile:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to create your profile. Please try again."
+        });
+        return null;
+      }
+
+      // Fetch the newly created profile
+      const { data: newProfile, error: fetchError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user?.id)
+        .maybeSingle();
+      
+      if (fetchError || !newProfile) {
+        console.error("Error fetching new profile:", fetchError);
+        return null;
+      }
+
+      return newProfile;
+    } catch (error) {
+      console.error("Error in createDefaultProfile:", error);
+      return null;
+    }
+  };
+
   const fetchProfileAndChildren = async () => {
     try {
       // Use .eq() to ensure we're only getting the profile for the current user
@@ -78,12 +118,33 @@ export default function ProfilePage() {
         };
         setProfile(typedProfile);
       } else {
-        // Handle the case when no profile is found
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Profile not found, please contact support."
-        });
+        // Instead of showing an error, create a default profile
+        console.log("No profile found, attempting to create one");
+        const newProfile = await createDefaultProfile();
+        
+        if (newProfile) {
+          const typedProfile: Profile = {
+            ...newProfile,
+            role: newProfile.role as 'parent' | 'provider' | 'admin',
+            full_name: newProfile.full_name || null,
+            avatar_url: newProfile.avatar_url || null,
+            phone: newProfile.phone || null,
+            location: newProfile.location || null,
+            username: newProfile.username || null,
+            preferred_communication: newProfile.preferred_communication || null,
+            preferred_payment_method: newProfile.preferred_payment_method || null,
+            referral_code: newProfile.referral_code || null,
+            provider_info: newProfile.provider_info || null
+          };
+          setProfile(typedProfile);
+        } else {
+          // Only show error if we failed to create a profile
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Profile not found and couldn't be created. Please contact support."
+          });
+        }
       }
 
       await fetchChildren();

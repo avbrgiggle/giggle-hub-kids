@@ -15,6 +15,43 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
   const [profile, setProfile] = useState<Partial<Profile> | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
 
+  const createDefaultProfile = async () => {
+    if (!user) return null;
+    
+    try {
+      // Create a default profile for the user
+      const { error } = await supabase.from("profiles").insert({
+        id: user.id,
+        full_name: user.email?.split('@')[0] || 'New Provider',
+        role: 'provider',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
+
+      if (error) {
+        console.error("Error creating profile:", error);
+        return null;
+      }
+
+      // Fetch the newly created profile
+      const { data, error: fetchError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
+      
+      if (fetchError || !data) {
+        console.error("Error fetching new profile:", fetchError);
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Error in createDefaultProfile:", error);
+      return null;
+    }
+  };
+
   useEffect(() => {
     const getProfile = async () => {
       if (!user) {
@@ -36,15 +73,28 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
           return;
         }
 
-        // Ensure the role is properly typed when setting the profile
+        // If profile exists, use it
         if (data) {
+          // Ensure the role is properly typed when setting the profile
           const typedProfile: Partial<Profile> = {
             ...data,
             role: data.role as 'parent' | 'provider' | 'admin'
           };
           setProfile(typedProfile);
         } else {
-          setProfile(null);
+          // If no profile exists, create a default one
+          console.log("No profile found in ProviderRoute, creating default");
+          const newProfile = await createDefaultProfile();
+          
+          if (newProfile) {
+            const typedProfile: Partial<Profile> = {
+              ...newProfile,
+              role: newProfile.role as 'parent' | 'provider' | 'admin'
+            };
+            setProfile(typedProfile);
+          } else {
+            setProfile(null);
+          }
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
