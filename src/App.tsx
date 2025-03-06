@@ -12,7 +12,7 @@ import ProviderDashboard from "@/pages/Provider/Dashboard";
 import ActivityForm from "@/pages/Provider/ActivityForm";
 import ExtracurricularActivityForm from "@/pages/Provider/ExtracurricularActivityForm";
 import StudentsManagement from "@/pages/Provider/StudentsManagement";
-import MessagesCenter from "@/pages/Provider/MessagesCenter";
+import MessagesCenter from "@/pages/Provider/Messages";
 import PaymentManagement from "@/pages/Provider/PaymentManagement";
 import NotFound from "@/pages/NotFound";
 import ProviderRoute from "@/components/ProviderRoute";
