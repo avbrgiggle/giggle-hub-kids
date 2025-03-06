@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Student } from "@/types/database.types";
 import StudentList from "./components/StudentList";
 import AddStudentForm from "./components/students/AddStudentForm";
-import EditStudentForm from "./components/EditStudentForm";
+import EditStudentForm from "./components/students/EditStudentForm";
 
 export default function StudentsManagement() {
   const [view, setView] = useState<"list" | "add" | "edit">("list");
