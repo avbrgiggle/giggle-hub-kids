@@ -40,12 +40,12 @@ export type Activity = {
   age_range: string;
   capacity: number;
   price: number;
-  duration: string;  // Keep as string but handle conversion in components
+  duration: string;  // Keep as string for compatibility with Supabase interval type
   created_at: string;
   updated_at: string;
-  provider?: Partial<Profile>;  // Make provider fields optional
-  images?: ActivityImage[];  // Add relationship to activity images
-  is_extracurricular?: boolean;  // Flag to identify extracurricular activities
+  provider?: Partial<Profile>;
+  images?: ActivityImage[];
+  is_extracurricular?: boolean;
 };
 
 export type ActivityImage = {
@@ -88,8 +88,8 @@ export type Message = {
   read: boolean;
   created_at: string;
   updated_at: string;
-  sender?: Partial<Profile>;  // Change to Partial<Profile> to handle incomplete data
-  receiver?: Partial<Profile>;  // Change to Partial<Profile> to handle incomplete data
+  sender?: Partial<Profile>;
+  receiver?: Partial<Profile>;
   booking?: Booking;
 };
 
@@ -146,7 +146,7 @@ export type StudentActivity = {
   activity_id: string;
   start_date: string;
   end_date?: string;
-  attendance_days: string[];  // e.g., ["Monday", "Wednesday", "Friday"]
+  attendance_days: string[];
   active: boolean;
   payment_status: 'paid' | 'pending' | 'overdue' | string;
   last_payment_date?: string;
