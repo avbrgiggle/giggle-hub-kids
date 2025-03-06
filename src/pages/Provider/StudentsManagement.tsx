@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Student } from "@/types/database.types";
 import StudentList from "./components/StudentList";
-import AddStudentForm from "./components/AddStudentForm";
+import AddStudentForm from "./components/students/AddStudentForm";
 import EditStudentForm from "./components/EditStudentForm";
 
 export default function StudentsManagement() {
