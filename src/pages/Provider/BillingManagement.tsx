@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -77,7 +76,7 @@ export default function BillingManagement() {
         .order("last_name", { ascending: true });
         
       if (studentsError) throw studentsError;
-      setStudents(studentsData || []);
+      setStudents(studentsData as Student[]);
       
       // Load all activities for this provider
       const { data: activitiesData, error: activitiesError } = await supabase
@@ -87,7 +86,7 @@ export default function BillingManagement() {
         .order("title", { ascending: true });
         
       if (activitiesError) throw activitiesError;
-      setActivities(activitiesData || []);
+      setActivities(activitiesData as Activity[]);
       
       // Load all student activities with their relationships
       const { data: saData, error: saError } = await supabase
@@ -108,7 +107,7 @@ export default function BillingManagement() {
         filteredSA = filteredSA.filter(sa => sa.payment_status === "paid");
       }
       
-      setStudentActivities(filteredSA);
+      setStudentActivities(filteredSA as StudentActivity[]);
       
       // Load all payments
       const { data: paymentsData, error: paymentsError } = await supabase
@@ -131,7 +130,7 @@ export default function BillingManagement() {
         });
       }
       
-      setPayments(filteredPayments);
+      setPayments(filteredPayments as Payment[]);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -693,7 +692,6 @@ export default function BillingManagement() {
   );
 }
 
-// For using this component, we also need to define the Label component:
 function Label({ htmlFor, children }: { htmlFor: string, children: React.ReactNode }) {
   return (
     <label

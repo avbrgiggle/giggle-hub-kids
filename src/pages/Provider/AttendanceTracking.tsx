@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -88,7 +87,6 @@ export default function AttendanceTracking() {
   const loadAttendanceData = async () => {
     setLoading(true);
     try {
-      // Get all enrolled students for this activity
       const { data: enrolledData, error: enrolledError } = await supabase
         .from("student_activities")
         .select(`
@@ -101,15 +99,13 @@ export default function AttendanceTracking() {
       if (enrolledError) throw enrolledError;
 
       const studentActivitiesData = enrolledData || [];
-      setStudentActivities(studentActivitiesData);
+      setStudentActivities((studentActivitiesData || []) as StudentActivity[]);
 
-      // Extract the student objects
       const studentsData = studentActivitiesData
         .map((sa: any) => sa.student)
         .filter(Boolean);
       setStudents(studentsData);
 
-      // Get attendance records for this date and these student activities
       const formattedDate = format(selectedDate, "yyyy-MM-dd");
       const studentActivityIds = studentActivitiesData.map((sa: any) => sa.id);
 
@@ -117,7 +113,6 @@ export default function AttendanceTracking() {
         const records = await getAttendanceRecords(studentActivityIds, formattedDate);
         setAttendanceRecords(records);
 
-        // Set notes for each record
         const notes: Record<string, string> = {};
         records.forEach((record) => {
           notes[record.student_activity_id] = record.notes || "";
@@ -158,7 +153,6 @@ export default function AttendanceTracking() {
       );
 
       if (existingRecord) {
-        // Update existing record
         const updatedRecord = await updateAttendanceRecord(
           existingRecord.id,
           {
@@ -173,7 +167,6 @@ export default function AttendanceTracking() {
           )
         );
       } else {
-        // Create new record
         const newRecord = await addAttendanceRecord({
           student_activity_id: studentActivityId,
           date: formattedDate,
@@ -216,7 +209,6 @@ export default function AttendanceTracking() {
       );
 
       if (existingRecord) {
-        // Update existing record
         const updatedRecord = await updateAttendanceRecord(
           existingRecord.id,
           {
@@ -235,7 +227,6 @@ export default function AttendanceTracking() {
           description: "Attendance notes have been updated",
         });
       } else {
-        // If there's no status set yet, we'll default to 'present' and save the note
         const newRecord = await addAttendanceRecord({
           student_activity_id: studentActivityId,
           date: formattedDate,
@@ -466,7 +457,6 @@ export default function AttendanceTracking() {
                 View and export attendance reports over time. Filter by date range, student, or activity.
               </p>
               
-              {/* Report generation form would go here */}
               <div className="text-center py-8">
                 <p>Report functionality coming soon</p>
               </div>

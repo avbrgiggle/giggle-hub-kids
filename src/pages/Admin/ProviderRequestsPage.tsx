@@ -59,7 +59,8 @@ export default function ProviderRequestsPage() {
 
       if (error) throw error;
       
-      setRequests(data || []);
+      // Type cast the data to match our ProviderSignupRequest type
+      setRequests((data || []) as ProviderSignupRequest[]);
     } catch (error: any) {
       toast({
         variant: "destructive",

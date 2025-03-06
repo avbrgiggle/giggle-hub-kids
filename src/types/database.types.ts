@@ -72,7 +72,7 @@ export type Booking = {
   activity_date_id: string;
   child_id: string;
   booking_date: string;
-  status: 'pending' | 'confirmed' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'cancelled' | string;
   created_at: string;
   updated_at: string;
   activity_date?: ActivityDate;
@@ -108,7 +108,7 @@ export type ProviderSignupRequest = {
   duration_types: string[];
   contact_info?: string;
   logo_url?: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | string;
   created_at: string;
   updated_at: string;
 };
@@ -148,7 +148,7 @@ export type StudentActivity = {
   end_date?: string;
   attendance_days: string[];  // e.g., ["Monday", "Wednesday", "Friday"]
   active: boolean;
-  payment_status: 'paid' | 'pending' | 'overdue';
+  payment_status: 'paid' | 'pending' | 'overdue' | string;
   last_payment_date?: string;
   created_at: string;
   updated_at: string;
@@ -160,7 +160,7 @@ export type AttendanceRecord = {
   id: string;
   student_activity_id: string;
   date: string;
-  status: 'present' | 'absent' | 'late' | 'excused';
+  status: 'present' | 'absent' | 'late' | 'excused' | string;
   notes?: string;
   created_at: string;
   updated_at: string;
@@ -171,8 +171,8 @@ export type Payment = {
   student_activity_id: string;
   amount: number;
   date: string;
-  method: 'credit_card' | 'bank_transfer' | 'paypal' | 'mb_way' | 'other';
-  status: 'paid' | 'pending' | 'failed' | 'refunded';
+  method: 'credit_card' | 'bank_transfer' | 'paypal' | 'mb_way' | 'other' | string;
+  status: 'paid' | 'pending' | 'failed' | 'refunded' | string;
   invoice_number?: string;
   notes?: string;
   created_at: string;
