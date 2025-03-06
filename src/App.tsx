@@ -3,18 +3,30 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "@/components/ui/toaster";
+
+// Auth & Public Pages
 import Login from "@/pages/Auth/Login";
 import Signup from "@/pages/Auth/Signup";
 import Index from "@/pages/Index/index";
 import ProfilePage from "@/pages/Profile/ProfilePage";
 import ActivityDetail from "@/pages/ActivityDetail";
+import NotFound from "@/pages/NotFound";
+
+// Provider Pages
 import ProviderDashboard from "@/pages/Provider/Dashboard";
 import ActivityForm from "@/pages/Provider/ActivityForm";
 import ExtracurricularActivityForm from "@/pages/Provider/ExtracurricularActivityForm";
 import StudentsManagement from "@/pages/Provider/StudentsManagement";
 import MessagesCenter from "@/pages/Provider/Messages";
 import PaymentManagement from "@/pages/Provider/PaymentManagement";
-import NotFound from "@/pages/NotFound";
+import AttendanceTracking from "@/pages/Provider/AttendanceTracking";
+import BillingManagement from "@/pages/Provider/BillingManagement";
+import ProviderLayout from "@/pages/Provider/Layout";
+
+// Admin Pages
+import ProviderRequestsPage from "@/pages/Admin/ProviderRequestsPage";
+
+// Route Protection
 import ProviderRoute from "@/components/ProviderRoute";
 
 function App() {
@@ -23,6 +35,7 @@ function App() {
       <AuthProvider>
         <Router>
           <Routes>
+            {/* Public Routes */}
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
@@ -30,15 +43,22 @@ function App() {
             <Route path="/activities/:id" element={<ActivityDetail />} />
             
             {/* Provider Routes - Protected with ProviderRoute component */}
-            <Route path="/provider" element={<ProviderRoute><ProviderDashboard /></ProviderRoute>} />
-            <Route path="/provider/dashboard" element={<ProviderRoute><ProviderDashboard /></ProviderRoute>} />
-            <Route path="/provider/activities/new" element={<ProviderRoute><ActivityForm /></ProviderRoute>} />
-            <Route path="/provider/activities/:id" element={<ProviderRoute><ActivityForm /></ProviderRoute>} />
-            <Route path="/provider/extracurricular/new" element={<ProviderRoute><ExtracurricularActivityForm /></ProviderRoute>} />
-            <Route path="/provider/extracurricular/:id" element={<ProviderRoute><ExtracurricularActivityForm /></ProviderRoute>} />
-            <Route path="/provider/students" element={<ProviderRoute><StudentsManagement /></ProviderRoute>} />
-            <Route path="/provider/messages" element={<ProviderRoute><MessagesCenter /></ProviderRoute>} />
-            <Route path="/provider/payments" element={<ProviderRoute><PaymentManagement /></ProviderRoute>} />
+            <Route path="/provider" element={<ProviderRoute><ProviderLayout /></ProviderRoute>}>
+              <Route index element={<ProviderDashboard />} />
+              <Route path="dashboard" element={<ProviderDashboard />} />
+              <Route path="activities/new" element={<ActivityForm />} />
+              <Route path="activities/:id" element={<ActivityForm />} />
+              <Route path="extracurricular/new" element={<ExtracurricularActivityForm />} />
+              <Route path="extracurricular/:id" element={<ExtracurricularActivityForm />} />
+              <Route path="students" element={<StudentsManagement />} />
+              <Route path="messages" element={<MessagesCenter />} />
+              <Route path="payments" element={<PaymentManagement />} />
+              <Route path="attendance" element={<AttendanceTracking />} />
+              <Route path="billing" element={<BillingManagement />} />
+            </Route>
+            
+            {/* Admin Routes */}
+            <Route path="/admin/provider-requests" element={<ProviderRequestsPage />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

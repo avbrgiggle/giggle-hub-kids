@@ -106,6 +106,8 @@ export type ProviderSignupRequest = {
   location: string;
   age_range: string;
   duration_types: string[];
+  contact_info?: string;
+  logo_url?: string;
   status: 'pending' | 'approved' | 'rejected';
   created_at: string;
   updated_at: string;
