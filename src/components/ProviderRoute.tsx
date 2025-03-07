@@ -1,49 +1,55 @@
 
 import { ReactNode, useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 import type { Profile } from "@/types/database.types";
 import { getOrCreateProfile } from "@/services/profileService";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 interface ProviderRouteProps {
   children: ReactNode;
 }
 
 const ProviderRoute = ({ children }: ProviderRouteProps) => {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  console.log("ProviderRoute render - User:", user?.id, "Auth loading:", authLoading);
 
   useEffect(() => {
     const loadProfile = async () => {
       if (!user) {
+        console.log("No user, skipping profile load");
         setProfileLoading(false);
         return;
       }
 
       try {
         console.log("Loading profile for user:", user.id);
-        // Use the shared service to get or create the profile
         const userProfile = await getOrCreateProfile(user, 'provider');
         console.log("Profile loaded:", userProfile);
-        setProfile(userProfile);
         
         if (!userProfile) {
-          setError("Could not load profile");
+          const errorMsg = "Could not load profile";
+          console.error(errorMsg);
+          setError(errorMsg);
           toast({
             variant: "destructive",
             title: "Error",
             description: "Could not load your profile. Please try again."
           });
+        } else {
+          setProfile(userProfile);
         }
       } catch (error: any) {
         console.error("Error loading profile:", error);
         setError(error.message || "An unexpected error occurred");
-        setProfile(null);
         toast({
           variant: "destructive",
           title: "Error",
@@ -54,14 +60,18 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
       }
     };
 
-    loadProfile();
-  }, [user, toast]);
+    if (!authLoading) {
+      loadProfile();
+    }
+  }, [user, authLoading, toast]);
 
   // Show loading spinner while auth and profile are loading
-  if (loading || profileLoading) {
+  if (authLoading || profileLoading) {
+    console.log("ProviderRoute loading - Auth:", authLoading, "Profile:", profileLoading);
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin mb-4" />
+        <p className="text-muted-foreground">Loading your dashboard...</p>
       </div>
     );
   }
@@ -90,16 +100,25 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
         <h2 className="text-xl font-semibold text-red-500">Error Loading Provider Dashboard</h2>
         <p className="text-gray-600">{error}</p>
-        <button 
-          onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Try Again
-        </button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => window.location.reload()}
+            variant="default"
+          >
+            Try Again
+          </Button>
+          <Button 
+            onClick={() => navigate("/")}
+            variant="outline"
+          >
+            Return Home
+          </Button>
+        </div>
       </div>
     );
   }
 
+  console.log("ProviderRoute rendering children with profile:", profile?.id);
   return <>{children}</>;
 };
 

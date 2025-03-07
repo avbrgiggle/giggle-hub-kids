@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { PlusCircle, Loader2, AlertCircle } from "lucide-react";
+import { PlusCircle, Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import type { Activity } from "@/types/database.types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -17,15 +17,16 @@ export default function ProviderDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  console.log("Dashboard rendering - User:", user?.id);
+
   useEffect(() => {
     if (!user) {
       console.log("No user found in dashboard");
-      navigate("/login");
       return;
     }
 
     fetchActivities();
-  }, [user, navigate]);
+  }, [user]);
 
   const fetchActivities = async () => {
     try {
@@ -44,7 +45,7 @@ export default function ProviderDashboard() {
         throw error;
       }
       
-      console.log("Activities fetched:", data);
+      console.log("Activities fetched:", data?.length);
       
       // Convert duration to string type for each activity
       const formattedActivities = (data || []).map(activity => ({
@@ -78,8 +79,9 @@ export default function ProviderDashboard() {
           <Button 
             variant="outline" 
             className="mt-4"
-            onClick={() => fetchActivities()}
+            onClick={fetchActivities}
           >
+            <RefreshCw className="h-4 w-4 mr-2" />
             Try Again
           </Button>
         </div>
@@ -89,8 +91,8 @@ export default function ProviderDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin mr-2" />
+      <div className="flex flex-col items-center justify-center min-h-[50vh]">
+        <Loader2 className="h-8 w-8 animate-spin mb-2" />
         <span>Loading your activities...</span>
       </div>
     );
