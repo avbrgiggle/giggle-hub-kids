@@ -10,6 +10,9 @@ export interface NewChild {
   last_name: string;
   date_of_birth: Date;
   interests: string[];
+  allergies?: string[];
+  medical_conditions?: string;
+  gender?: string;
 }
 
 export function useChildren(userId: string | undefined) {
@@ -22,6 +25,9 @@ export function useChildren(userId: string | undefined) {
     last_name: "",
     date_of_birth: new Date(),
     interests: [],
+    allergies: [],
+    medical_conditions: "",
+    gender: ""
   });
 
   const fetchChildren = async () => {
@@ -82,6 +88,9 @@ export function useChildren(userId: string | undefined) {
         last_name: newChild.last_name.trim(),
         date_of_birth: format(newChild.date_of_birth, "yyyy-MM-dd"),
         interests: newChild.interests,
+        allergies: newChild.allergies,
+        medical_conditions: newChild.medical_conditions,
+        gender: newChild.gender
       });
 
       if (error) throw error;
@@ -97,6 +106,9 @@ export function useChildren(userId: string | undefined) {
         last_name: "",
         date_of_birth: new Date(),
         interests: [],
+        allergies: [],
+        medical_conditions: "",
+        gender: ""
       });
       fetchChildren();
     } catch (error: any) {
@@ -118,6 +130,15 @@ export function useChildren(userId: string | undefined) {
     }));
   };
 
+  const toggleAllergy = (allergy: string) => {
+    setNewChild(prev => ({
+      ...prev,
+      allergies: prev.allergies?.includes(allergy)
+        ? prev.allergies.filter(a => a !== allergy)
+        : [...(prev.allergies || []), allergy],
+    }));
+  };
+
   // Fetch children when component mounts or userId changes
   useEffect(() => {
     fetchChildren();
@@ -132,6 +153,7 @@ export function useChildren(userId: string | undefined) {
     setNewChild,
     handleAddChild,
     toggleInterest,
+    toggleAllergy,
     fetchChildren,
   };
 }

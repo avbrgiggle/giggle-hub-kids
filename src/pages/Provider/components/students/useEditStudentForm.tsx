@@ -15,9 +15,10 @@ export const useEditStudentForm = (student: Student, onSuccess: () => void) => {
     parent_phone: "",
     emergency_contact: "",
     medical_notes: "",
+    allergies: [],
     notes: "",
   });
-  const [date, setDate] = useState<Date>();
+  const [date, setDate] = useState<Date | undefined>(undefined);
 
   useEffect(() => {
     if (student) {
@@ -29,6 +30,7 @@ export const useEditStudentForm = (student: Student, onSuccess: () => void) => {
         parent_phone: student.parent_phone,
         emergency_contact: student.emergency_contact || "",
         medical_notes: student.medical_notes || "",
+        allergies: student.allergies || [],
         notes: student.notes || "",
       });
       
@@ -41,6 +43,10 @@ export const useEditStudentForm = (student: Student, onSuccess: () => void) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleAllergyChange = (allergies: string[]) => {
+    setFormData((prev) => ({ ...prev, allergies }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -89,6 +95,7 @@ export const useEditStudentForm = (student: Student, onSuccess: () => void) => {
     loading,
     setDate,
     handleChange,
+    handleAllergyChange,
     handleSubmit
   };
 };

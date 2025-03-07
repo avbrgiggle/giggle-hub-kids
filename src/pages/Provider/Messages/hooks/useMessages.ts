@@ -54,6 +54,9 @@ export const useMessages = (userId: string | undefined) => {
             });
           } else {
             const conversation = conversationsMap.get(otherPersonId)!;
+            if (new Date(message.created_at) > new Date(conversation.lastMessage.created_at)) {
+              conversation.lastMessage = message;
+            }
             if (!isUserSender && !message.read) {
               conversation.unreadCount += 1;
             }
@@ -63,6 +66,11 @@ export const useMessages = (userId: string | undefined) => {
         setConversations(Array.from(conversationsMap.values()));
       } catch (error) {
         console.error("Error loading data:", error);
+        toast({
+          variant: "destructive",
+          title: "Error loading data",
+          description: "There was a problem loading your messages and students."
+        });
       } finally {
         setLoading(false);
       }
@@ -100,6 +108,11 @@ export const useMessages = (userId: string | undefined) => {
       }
     } catch (error) {
       console.error("Error opening conversation:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load conversation messages."
+      });
     } finally {
       setMessagesLoading(false);
     }
@@ -160,29 +173,44 @@ export const useMessages = (userId: string | undefined) => {
 
     try {
       setSendingMessage(true);
-      
-      const dummyParentId = "dummy-parent-id";
+      let sentCount = 0;
       
       if (recipient === "all") {
+        // Send to all parents of students
+        const uniqueParents = new Set();
         for (const student of students) {
-          const parentId = dummyParentId;
-          await sendMessage(userId, parentId, messageContent);
+          // In a real app, we would have parent IDs in the student records
+          // For now, we're just simulating by using email as a key
+          if (!uniqueParents.has(student.parent_email)) {
+            uniqueParents.add(student.parent_email);
+            // In a real app, we would use the parent ID here
+            const parentId = `parent-${student.id}`;
+            await sendMessage(
+              userId, 
+              parentId, 
+              subject ? `${subject}: ${messageContent}` : messageContent
+            );
+            sentCount++;
+          }
         }
       } else {
-        const activityStudents = students.filter(s => s.id === recipient);
-        for (const student of activityStudents) {
-          const parentId = dummyParentId;
+        // Send to parents of a specific student
+        const student = students.find(s => s.id === recipient);
+        if (student) {
+          // In a real app, we would use the parent ID here
+          const parentId = `parent-${student.id}`;
           await sendMessage(
             userId, 
             parentId, 
             subject ? `${subject}: ${messageContent}` : messageContent
           );
+          sentCount = 1;
         }
       }
       
       toast({
         title: "Messages sent",
-        description: "Your messages have been sent successfully.",
+        description: `Successfully sent ${sentCount} message${sentCount !== 1 ? 's' : ''}.`,
       });
       
       setMessageContent("");

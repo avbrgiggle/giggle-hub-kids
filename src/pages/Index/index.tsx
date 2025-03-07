@@ -26,25 +26,26 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [ageRange, setAgeRange] = useState([0, 18]);
   const [activities, setActivities] = useState<Activity[]>([]);
+  const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
   const { t } = useTranslation();
 
   useEffect(() => {
     fetchActivities();
-  }, [selectedCategory]);
+  }, []);
+
+  useEffect(() => {
+    filterActivities();
+  }, [selectedCategory, ageRange, searchTerm, activities]);
 
   const fetchActivities = async () => {
     try {
-      let query = supabase
+      setLoading(true);
+      const { data, error } = await supabase
         .from("activities")
         .select("*, provider:profiles(id, full_name, avatar_url, phone, role)");
-
-      if (selectedCategory !== "All") {
-        query = query.eq("category", selectedCategory);
-      }
-
-      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -53,14 +54,15 @@ const Index = () => {
         duration: String(activity.duration),
         provider: activity.provider ? {
           ...activity.provider,
-          role: activity.provider.role as 'parent' | 'provider',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          role: activity.provider.role as 'parent' | 'provider' | 'admin' | string,
+          created_at: activity.provider.created_at || new Date().toISOString(),
+          updated_at: activity.provider.updated_at || new Date().toISOString()
         } : undefined
       }));
 
       setActivities(formattedActivities);
     } catch (error: any) {
+      console.error("Error fetching activities:", error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -71,10 +73,47 @@ const Index = () => {
     }
   };
 
+  const filterActivities = () => {
+    let filtered = [...activities];
+    
+    // Filter by category
+    if (selectedCategory !== "All") {
+      filtered = filtered.filter(activity => activity.category === selectedCategory);
+    }
+    
+    // Filter by age range
+    filtered = filtered.filter(activity => {
+      // Parse age range (format example: "3-6", "7-10", etc.)
+      const [min, max] = activity.age_range.split('-').map(Number);
+      return (
+        (min >= ageRange[0] && min <= ageRange[1]) || 
+        (max >= ageRange[0] && max <= ageRange[1]) ||
+        (min <= ageRange[0] && max >= ageRange[1])
+      );
+    });
+    
+    // Filter by search term
+    if (searchTerm) {
+      const lowercasedSearch = searchTerm.toLowerCase();
+      filtered = filtered.filter(activity => 
+        activity.title.toLowerCase().includes(lowercasedSearch) ||
+        activity.description.toLowerCase().includes(lowercasedSearch) ||
+        activity.location.toLowerCase().includes(lowercasedSearch) ||
+        activity.provider?.full_name?.toLowerCase().includes(lowercasedSearch)
+      );
+    }
+    
+    setFilteredActivities(filtered);
+  };
+
   const handleAgeRangeChange = (newValue: number[]) => {
     if (newValue[0] <= newValue[1]) {
       setAgeRange(newValue);
     }
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
   };
 
   const handleSave = (activityId: string) => {
@@ -97,7 +136,7 @@ const Index = () => {
             />
           </div>
 
-          <SearchBar />
+          <SearchBar onSearch={handleSearch} />
           <AgeRangeSlider value={ageRange} onChange={handleAgeRangeChange} />
         </div>
       </div>
@@ -113,13 +152,13 @@ const Index = () => {
           <div className="flex justify-center items-center min-h-[200px]">
             <Loader2 className="w-8 h-8 animate-spin" />
           </div>
-        ) : activities.length === 0 ? (
+        ) : filteredActivities.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-muted-foreground">No activities found</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {activities.map((activity) => (
+            {filteredActivities.map((activity) => (
               <ActivityCard 
                 key={activity.id} 
                 activity={activity} 

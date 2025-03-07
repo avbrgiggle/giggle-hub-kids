@@ -18,7 +18,7 @@ export type Profile = {
   full_name: string | null;
   avatar_url: string | null;
   phone: string | null;
-  role: 'parent' | 'provider' | 'admin';
+  role: 'parent' | 'provider' | 'admin' | string;
   location: string | null;
   username: string | null;
   preferred_communication: string | null;
