@@ -29,6 +29,7 @@ const Index = () => {
   const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [locationTerm, setLocationTerm] = useState("");
   const { toast } = useToast();
   const { t } = useTranslation();
 
@@ -38,7 +39,7 @@ const Index = () => {
 
   useEffect(() => {
     filterActivities();
-  }, [selectedCategory, ageRange, searchTerm, activities]);
+  }, [selectedCategory, ageRange, searchTerm, locationTerm, activities]);
 
   const fetchActivities = async () => {
     try {
@@ -99,8 +100,15 @@ const Index = () => {
       filtered = filtered.filter(activity => 
         activity.title.toLowerCase().includes(lowercasedSearch) ||
         activity.description.toLowerCase().includes(lowercasedSearch) ||
-        activity.location.toLowerCase().includes(lowercasedSearch) ||
-        activity.provider?.full_name?.toLowerCase().includes(lowercasedSearch)
+        (activity.provider?.full_name?.toLowerCase() || '').includes(lowercasedSearch)
+      );
+    }
+    
+    // Filter by location
+    if (locationTerm) {
+      const lowercasedLocation = locationTerm.toLowerCase();
+      filtered = filtered.filter(activity => 
+        activity.location.toLowerCase().includes(lowercasedLocation)
       );
     }
     
@@ -115,6 +123,10 @@ const Index = () => {
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
+  };
+
+  const handleLocationSearch = (location: string) => {
+    setLocationTerm(location);
   };
 
   const handleSave = (activityId: string) => {
@@ -137,7 +149,7 @@ const Index = () => {
             />
           </div>
 
-          <SearchBar onSearch={handleSearch} />
+          <SearchBar onSearch={handleSearch} onLocationSearch={handleLocationSearch} />
           <AgeRangeSlider value={ageRange} onChange={handleAgeRangeChange} />
         </div>
       </div>
@@ -155,7 +167,7 @@ const Index = () => {
           </div>
         ) : filteredActivities.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-muted-foreground">No activities found</p>
+            <p className="text-muted-foreground">{t("activities.notFound")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

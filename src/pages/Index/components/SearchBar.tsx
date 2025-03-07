@@ -7,9 +7,10 @@ import { useTranslation } from "react-i18next";
 
 interface SearchBarProps {
   onSearch: (term: string) => void;
+  onLocationSearch: (location: string) => void;
 }
 
-export const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
+export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onLocationSearch }) => {
   const { t } = useTranslation();
   const [searchInput, setSearchInput] = useState("");
   const [locationInput, setLocationInput] = useState("");
@@ -17,6 +18,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchInput(e.target.value);
     onSearch(e.target.value);
+  };
+  
+  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocationInput(e.target.value);
+    onLocationSearch(e.target.value);
   };
   
   return (
@@ -36,7 +42,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
           placeholder={t("search.location")}
           className="pl-10 h-12 rounded-full bg-white/90 border-0"
           value={locationInput}
-          onChange={(e) => setLocationInput(e.target.value)}
+          onChange={handleLocationChange}
         />
       </div>
       <Button size="lg" className="rounded-full h-12 bg-primary hover:bg-primary/90">
