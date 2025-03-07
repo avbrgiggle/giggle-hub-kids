@@ -62,94 +62,96 @@ export default function ProviderSidebar() {
         <p className="text-sm text-muted-foreground">Manage your activities</p>
       </div>
 
-      <div className="space-y-1">
-        <NavItem
-          to="/provider/dashboard"
-          icon={<Home className="h-5 w-5" />}
-          label="Dashboard"
-          active={currentPath === "/provider" || currentPath === "/provider/dashboard"}
-        />
-        
-        <div className="pt-2 pb-2">
-          <p className="text-xs font-medium text-muted-foreground pl-3 pb-2">ACTIVITIES</p>
+      <div className="space-y-1 flex flex-col h-[calc(100vh-180px)]">
+        <div className="flex-none">
           <NavItem
-            to="/provider/activities/new"
-            icon={<PlusCircle className="h-5 w-5" />}
-            label="New Activity"
-            active={currentPath === "/provider/activities/new"}
+            to="/provider/dashboard"
+            icon={<Home className="h-5 w-5" />}
+            label="Dashboard"
+            active={currentPath === "/provider" || currentPath === "/provider/dashboard"}
           />
-          <NavItem
-            to="/provider/extracurricular/new"
-            icon={<PlusCircle className="h-5 w-5" />}
-            label="New Extracurricular"
-            active={currentPath === "/provider/extracurricular/new"}
-          />
+          
+          <div className="pt-2 pb-2">
+            <p className="text-xs font-medium text-muted-foreground pl-3 pb-2">ACTIVITIES</p>
+            <NavItem
+              to="/provider/activities/new"
+              icon={<PlusCircle className="h-5 w-5" />}
+              label="New Activity"
+              active={currentPath === "/provider/activities/new"}
+            />
+            <NavItem
+              to="/provider/extracurricular/new"
+              icon={<PlusCircle className="h-5 w-5" />}
+              label="New Extracurricular"
+              active={currentPath === "/provider/extracurricular/new"}
+            />
+          </div>
+          
+          <div className="pt-2 pb-2">
+            <p className="text-xs font-medium text-muted-foreground pl-3 pb-2">MANAGEMENT</p>
+            <NavItem
+              to="/provider/students"
+              icon={<Users className="h-5 w-5" />}
+              label="Students"
+              active={currentPath.startsWith("/provider/students")}
+            />
+            <NavItem
+              to="/provider/attendance"
+              icon={<CalendarDays className="h-5 w-5" />}
+              label="Attendance"
+              active={currentPath.startsWith("/provider/attendance")}
+            />
+            <NavItem
+              to="/provider/messages"
+              icon={<MessageSquare className="h-5 w-5" />}
+              label="Messages"
+              active={currentPath.startsWith("/provider/messages")}
+            />
+          </div>
+          
+          <div className="pt-2 pb-2">
+            <p className="text-xs font-medium text-muted-foreground pl-3 pb-2">FINANCIALS</p>
+            <NavItem
+              to="/provider/billing"
+              icon={<FileText className="h-5 w-5" />}
+              label="Invoices & Billing"
+              active={currentPath.startsWith("/provider/billing")}
+            />
+            <NavItem
+              to="/provider/payments"
+              icon={<DollarSign className="h-5 w-5" />}
+              label="Payments"
+              active={currentPath.startsWith("/provider/payments")}
+            />
+          </div>
+          
+          <div className="pt-2 pb-2">
+            <p className="text-xs font-medium text-muted-foreground pl-3 pb-2">INSIGHTS</p>
+            <NavItem
+              to="/provider/analytics"
+              icon={<BarChart2 className="h-5 w-5" />}
+              label="Analytics"
+              active={currentPath.startsWith("/provider/analytics")}
+            />
+          </div>
         </div>
-        
-        <div className="pt-2 pb-2">
-          <p className="text-xs font-medium text-muted-foreground pl-3 pb-2">MANAGEMENT</p>
-          <NavItem
-            to="/provider/students"
-            icon={<Users className="h-5 w-5" />}
-            label="Students"
-            active={currentPath.startsWith("/provider/students")}
-          />
-          <NavItem
-            to="/provider/attendance"
-            icon={<CalendarDays className="h-5 w-5" />}
-            label="Attendance"
-            active={currentPath.startsWith("/provider/attendance")}
-          />
-          <NavItem
-            to="/provider/messages"
-            icon={<MessageSquare className="h-5 w-5" />}
-            label="Messages"
-            active={currentPath.startsWith("/provider/messages")}
-          />
-        </div>
-        
-        <div className="pt-2 pb-2">
-          <p className="text-xs font-medium text-muted-foreground pl-3 pb-2">FINANCIALS</p>
-          <NavItem
-            to="/provider/billing"
-            icon={<FileText className="h-5 w-5" />}
-            label="Invoices & Billing"
-            active={currentPath.startsWith("/provider/billing")}
-          />
-          <NavItem
-            to="/provider/payments"
-            icon={<DollarSign className="h-5 w-5" />}
-            label="Payments"
-            active={currentPath.startsWith("/provider/payments")}
-          />
-        </div>
-        
-        <div className="pt-2 pb-2">
-          <p className="text-xs font-medium text-muted-foreground pl-3 pb-2">INSIGHTS</p>
-          <NavItem
-            to="/provider/analytics"
-            icon={<BarChart2 className="h-5 w-5" />}
-            label="Analytics"
-            active={currentPath.startsWith("/provider/analytics")}
-          />
-        </div>
-      </div>
 
-      <div className="absolute bottom-4 w-52">
-        <NavItem
-          to="/provider/settings"
-          icon={<Settings className="h-5 w-5" />}
-          label="Settings"
-          active={currentPath.startsWith("/provider/settings")}
-        />
-        <Button
-          variant="ghost"
-          className="w-full justify-start text-red-500 hover:text-red-700 hover:bg-red-50"
-          onClick={handleLogout}
-        >
-          <LogOut className="h-5 w-5" />
-          <span className="ml-2">Logout</span>
-        </Button>
+        <div className="mt-auto pt-4">
+          <NavItem
+            to="/provider/settings"
+            icon={<Settings className="h-5 w-5" />}
+            label="Settings"
+            active={currentPath.startsWith("/provider/settings")}
+          />
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-red-500 hover:text-red-700 hover:bg-red-50"
+            onClick={handleLogout}
+          >
+            <LogOut className="h-5 w-5" />
+            <span className="ml-2">Logout</span>
+          </Button>
+        </div>
       </div>
     </div>
   );
