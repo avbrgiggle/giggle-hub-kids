@@ -55,8 +55,9 @@ const Index = () => {
         provider: activity.provider ? {
           ...activity.provider,
           role: activity.provider.role as 'parent' | 'provider' | 'admin' | string,
-          created_at: activity.provider.created_at || new Date().toISOString(),
-          updated_at: activity.provider.updated_at || new Date().toISOString()
+          // Add default values for created_at and updated_at if they don't exist
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         } : undefined
       }));
 

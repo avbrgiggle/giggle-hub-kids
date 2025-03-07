@@ -1,12 +1,23 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Search, MapPin, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
 
-export const SearchBar = () => {
+interface SearchBarProps {
+  onSearch: (term: string) => void;
+}
+
+export const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   const { t } = useTranslation();
+  const [searchInput, setSearchInput] = useState("");
+  const [locationInput, setLocationInput] = useState("");
+  
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchInput(e.target.value);
+    onSearch(e.target.value);
+  };
   
   return (
     <div className="max-w-2xl mx-auto flex gap-4 mb-8">
@@ -15,6 +26,8 @@ export const SearchBar = () => {
         <Input
           placeholder={t("search.activities")}
           className="pl-10 h-12 rounded-full bg-white/90 border-0"
+          value={searchInput}
+          onChange={handleSearchChange}
         />
       </div>
       <div className="relative flex-1">
@@ -22,6 +35,8 @@ export const SearchBar = () => {
         <Input
           placeholder={t("search.location")}
           className="pl-10 h-12 rounded-full bg-white/90 border-0"
+          value={locationInput}
+          onChange={(e) => setLocationInput(e.target.value)}
         />
       </div>
       <Button size="lg" className="rounded-full h-12 bg-primary hover:bg-primary/90">
