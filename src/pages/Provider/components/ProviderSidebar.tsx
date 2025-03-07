@@ -56,14 +56,14 @@ export default function ProviderSidebar() {
   };
 
   return (
-    <div className="w-64 h-screen p-4 border-r">
-      <div className="mb-8">
+    <div className="w-64 h-screen p-4 border-r flex flex-col">
+      <div className="mb-6">
         <h2 className="text-2xl font-bold mb-1">Provider Portal</h2>
         <p className="text-sm text-muted-foreground">Manage your activities</p>
       </div>
 
-      <div className="space-y-1 flex flex-col h-[calc(100vh-180px)]">
-        <div className="flex-none">
+      <div className="flex flex-col flex-grow overflow-y-auto">
+        <div>
           <NavItem
             to="/provider/dashboard"
             icon={<Home className="h-5 w-5" />}
@@ -135,23 +135,23 @@ export default function ProviderSidebar() {
             />
           </div>
         </div>
+      </div>
 
-        <div className="mt-auto pt-4">
-          <NavItem
-            to="/provider/settings"
-            icon={<Settings className="h-5 w-5" />}
-            label="Settings"
-            active={currentPath.startsWith("/provider/settings")}
-          />
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-red-500 hover:text-red-700 hover:bg-red-50"
-            onClick={handleLogout}
-          >
-            <LogOut className="h-5 w-5" />
-            <span className="ml-2">Logout</span>
-          </Button>
-        </div>
+      <div className="mt-auto pt-4 border-t">
+        <NavItem
+          to="/provider/settings"
+          icon={<Settings className="h-5 w-5" />}
+          label="Settings"
+          active={currentPath.startsWith("/provider/settings")}
+        />
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-red-500 hover:text-red-700 hover:bg-red-50"
+          onClick={handleLogout}
+        >
+          <LogOut className="h-5 w-5" />
+          <span className="ml-2">Logout</span>
+        </Button>
       </div>
     </div>
   );

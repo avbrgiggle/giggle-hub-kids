@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { PlusCircle, Loader2 } from "lucide-react";
+import { PlusCircle, Loader2, AlertCircle } from "lucide-react";
 import type { Activity } from "@/types/database.types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -15,9 +15,11 @@ export default function ProviderDashboard() {
   const { toast } = useToast();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
+      console.log("No user found in dashboard");
       navigate("/login");
       return;
     }
@@ -27,13 +29,22 @@ export default function ProviderDashboard() {
 
   const fetchActivities = async () => {
     try {
+      console.log("Fetching activities for provider:", user?.id);
+      setError(null);
+      setLoading(true);
+      
       const { data, error } = await supabase
         .from("activities")
         .select("*")
         .eq("provider_id", user?.id)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching activities:", error);
+        throw error;
+      }
+      
+      console.log("Activities fetched:", data);
       
       // Convert duration to string type for each activity
       const formattedActivities = (data || []).map(activity => ({
@@ -43,20 +54,44 @@ export default function ProviderDashboard() {
       
       setActivities(formattedActivities);
     } catch (error: any) {
+      console.error("Error in fetchActivities:", error);
+      setError(error.message || "Failed to load activities");
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message,
+        description: error.message || "Could not load your activities",
       });
     } finally {
       setLoading(false);
     }
   };
 
+  if (error) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <div className="bg-red-50 border border-red-200 rounded-md p-6 mb-8">
+          <div className="flex items-center space-x-3">
+            <AlertCircle className="h-6 w-6 text-red-500" />
+            <h2 className="text-lg font-medium text-red-800">Error Loading Dashboard</h2>
+          </div>
+          <p className="mt-2 text-sm text-red-700">{error}</p>
+          <Button 
+            variant="outline" 
+            className="mt-4"
+            onClick={() => fetchActivities()}
+          >
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin mr-2" />
+        <span>Loading your activities...</span>
       </div>
     );
   }
