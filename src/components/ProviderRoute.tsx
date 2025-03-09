@@ -49,12 +49,28 @@ const ProviderRoute = ({ children }: ProviderRouteProps) => {
         }
       } catch (error: any) {
         console.error("Error loading profile:", error);
-        setError(error.message || "An unexpected error occurred");
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: error.message || "Failed to load your profile"
-        });
+        
+        // Check if this is an RLS policy error
+        const isRLSError = error.message?.includes("row-level security") || 
+                          error.message?.includes("policy") || 
+                          error.code === "PGRST301";
+        
+        if (isRLSError) {
+          const errorMsg = "Access denied: You don't have permission to view this profile";
+          setError(errorMsg);
+          toast({
+            variant: "destructive",
+            title: "Access Denied",
+            description: "You don't have permission to access the provider dashboard"
+          });
+        } else {
+          setError(error.message || "An unexpected error occurred");
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: error.message || "Failed to load your profile"
+          });
+        }
       } finally {
         setProfileLoading(false);
       }
