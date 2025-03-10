@@ -11,14 +11,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MandatoryFields } from "./components/MandatoryFields";
-import { OptionalFields } from "./components/OptionalFields";
-import { TermsAgreement } from "./components/TermsAgreement";
-import { ProviderRequestForm } from "./components/ProviderRequestForm";
 import { ProviderCodeInput } from "./components/ProviderCodeInput";
 import { PartnerLink } from "./components/PartnerLink";
 import { ParentSignupForm } from "./components/ParentSignupForm";
 import { ProviderSignupForm } from "./components/ProviderSignupForm";
+import { ProviderRequestForm } from "./components/provider-request/ProviderRequestForm";
 import { useSignup } from "./hooks/useSignup";
 
 export default function Signup() {
