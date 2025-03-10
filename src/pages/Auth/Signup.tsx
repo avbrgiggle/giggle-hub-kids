@@ -17,6 +17,7 @@ import { useSignup } from "./hooks/useSignup";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProviderRequestForm } from "./components/ProviderRequestForm";
 import { ProviderCodeInput } from "./components/ProviderCodeInput";
+import { PartnerLink } from "./components/PartnerLink";
 
 export default function Signup() {
   const { formData, loading, providerCodeValid, handleInputChange, handleValidProviderCode, handleSubmit } = useSignup();
@@ -123,13 +124,14 @@ export default function Signup() {
             </TabsContent>
           </Tabs>
         </CardContent>
-        <CardFooter className="flex justify-center">
+        <CardFooter className="flex flex-col gap-4">
           <div className="text-sm text-muted-foreground">
             Already have an account?{" "}
             <Link to="/login" className="text-primary hover:underline">
               Sign in
             </Link>
           </div>
+          <PartnerLink />
         </CardFooter>
       </Card>
     </div>

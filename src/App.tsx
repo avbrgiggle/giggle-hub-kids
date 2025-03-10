@@ -11,6 +11,7 @@ import Index from "@/pages/Index/index";
 import ProfilePage from "@/pages/Profile/ProfilePage";
 import ActivityDetail from "@/pages/ActivityDetail";
 import NotFound from "@/pages/NotFound";
+import PartnerWithUs from "@/pages/Partner/PartnerWithUs";
 
 // Provider Pages
 import ProviderDashboard from "@/pages/Provider/Dashboard";
@@ -41,6 +42,7 @@ function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/activities/:id" element={<ActivityDetail />} />
+            <Route path="/partner-with-us" element={<PartnerWithUs />} />
             
             {/* Provider Routes - Protected with ProviderRoute component */}
             <Route path="/provider" element={<ProviderRoute><ProviderLayout /></ProviderRoute>}>

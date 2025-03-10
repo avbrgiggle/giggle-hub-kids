@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PartnerLink } from "./components/PartnerLink";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -285,6 +286,8 @@ export default function Login() {
               </form>
             </TabsContent>
           </Tabs>
+          
+          <PartnerLink />
         </div>
       </div>
     </div>
