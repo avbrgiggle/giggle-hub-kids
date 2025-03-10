@@ -1,174 +1,16 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LoginForm } from "./components/LoginForm";
+import { SignUpForm } from "./components/SignUpForm";
+import { TestProviderButton } from "./components/TestProviderButton";
 import { PartnerLink } from "./components/PartnerLink";
 
 export default function Login() {
-  const navigate = useNavigate();
-  const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<"parent" | "provider">("parent");
   const [loading, setLoading] = useState(false);
-
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const { data: { user }, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-
-      if (signUpError) throw signUpError;
-
-      if (user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({ role })
-          .eq('id', user.id);
-
-        if (profileError) throw profileError;
-
-        toast({
-          title: "Success",
-          description: "Account created! Please check your email for verification.",
-        });
-      }
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (signInError) {
-        // Handle the email not confirmed error specifically
-        if (signInError.message.includes("Email not confirmed")) {
-          const { error: resendError } = await supabase.auth.resend({
-            type: 'signup',
-            email,
-          });
-
-          if (!resendError) {
-            toast({
-              title: "Email Not Verified",
-              description: "Please check your email for the verification link. We've sent a new one just in case.",
-            });
-          } else {
-            throw resendError;
-          }
-        } else {
-          throw signInError;
-        }
-        return;
-      }
-
-      toast({
-        title: "Success",
-        description: "Logged in successfully",
-      });
-
-      navigate(role === "provider" ? "/provider/dashboard" : "/");
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Helper function to login as test provider
-  const loginAsTestProvider = async () => {
-    setLoading(true);
-    try {
-      const testEmail = "testprovider@example.com";
-      const testPassword = "password123";
-      
-      // Check if account exists
-      const { data: { user }, error: signInError } = await supabase.auth.signInWithPassword({
-        email: testEmail,
-        password: testPassword,
-      });
-      
-      if (signInError) {
-        // If account doesn't exist, create one
-        if (signInError.message.includes("Invalid login credentials")) {
-          const { data: { user: newUser }, error: signUpError } = await supabase.auth.signUp({
-            email: testEmail,
-            password: testPassword,
-          });
-          
-          if (signUpError) throw signUpError;
-          
-          if (newUser) {
-            // Create provider profile
-            const { error: profileError } = await supabase
-              .from('profiles')
-              .update({ 
-                role: 'provider',
-                full_name: 'Test Provider',
-                location: 'Test Location',
-                phone: '123-456-7890'
-              })
-              .eq('id', newUser.id);
-            
-            if (profileError) throw profileError;
-            
-            // Try login again
-            const { error } = await supabase.auth.signInWithPassword({
-              email: testEmail,
-              password: testPassword,
-            });
-            
-            if (error) throw error;
-          }
-        } else {
-          throw signInError;
-        }
-      }
-      
-      toast({
-        title: "Success",
-        description: "Logged in as test provider",
-      });
-      
-      navigate("/provider/dashboard");
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
@@ -188,102 +30,31 @@ export default function Login() {
             </TabsList>
 
             <TabsContent value="login">
-              <form onSubmit={handleLogin} className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="role-login">I am a</Label>
-                  <Select value={role} onValueChange={(value: "parent" | "provider") => setRole(value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select your role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="parent">Parent</SelectItem>
-                      <SelectItem value="provider">Activity Provider</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email-login">Email</Label>
-                  <Input
-                    id="email-login"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="password-login">Password</Label>
-                  <Input
-                    id="password-login"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Please wait..." : "Sign In"}
-                </Button>
-
-                <div className="mt-4 pt-4 border-t">
-                  <p className="text-sm text-center text-muted-foreground mb-2">For testing purposes</p>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    className="w-full" 
-                    onClick={loginAsTestProvider}
-                    disabled={loading}
-                  >
-                    {loading ? "Please wait..." : "Login as Test Provider"}
-                  </Button>
-                </div>
-              </form>
+              <LoginForm 
+                email={email}
+                setEmail={setEmail}
+                password={password}
+                setPassword={setPassword}
+                role={role}
+                setRole={setRole}
+                loading={loading}
+                setLoading={setLoading}
+              />
+              
+              <TestProviderButton loading={loading} setLoading={setLoading} />
             </TabsContent>
 
             <TabsContent value="signup">
-              <form onSubmit={handleSignUp} className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="role-signup">I am a</Label>
-                  <Select value={role} onValueChange={(value: "parent" | "provider") => setRole(value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select your role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="parent">Parent</SelectItem>
-                      <SelectItem value="provider">Activity Provider</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email-signup">Email</Label>
-                  <Input
-                    id="email-signup"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="password-signup">Password</Label>
-                  <Input
-                    id="password-signup"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Please wait..." : "Create Account"}
-                </Button>
-              </form>
+              <SignUpForm 
+                email={email}
+                setEmail={setEmail}
+                password={password}
+                setPassword={setPassword}
+                role={role}
+                setRole={setRole}
+                loading={loading}
+                setLoading={setLoading}
+              />
             </TabsContent>
           </Tabs>
           
