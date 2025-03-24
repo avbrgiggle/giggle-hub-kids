@@ -30,6 +30,7 @@ import { ActivityHeader } from "./components/ActivityHeader";
 import { BookingDialog } from "./components/BookingDialog";
 import { MessageDialog } from "./components/MessageDialog";
 import { MessageList } from "./components/MessageList";
+import LocationMap from "@/components/LocationMap";
 
 const ActivityDetail = () => {
   const { id } = useParams();
@@ -324,6 +325,7 @@ const ActivityDetail = () => {
               <TabsList className="w-full border-b">
                 <TabsTrigger value="description">Description</TabsTrigger>
                 <TabsTrigger value="dates">Available Dates</TabsTrigger>
+                <TabsTrigger value="location">Location</TabsTrigger>
                 <TabsTrigger value="messages">Messages</TabsTrigger>
               </TabsList>
               
@@ -358,6 +360,12 @@ const ActivityDetail = () => {
                     ))
                   )}
                 </div>
+              </TabsContent>
+              
+              <TabsContent value="location" className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Location</h3>
+                <p className="text-muted-foreground mb-4">{activity.location}</p>
+                <LocationMap address={activity.location} className="h-[300px] mt-4" />
               </TabsContent>
               
               <TabsContent value="messages" className="p-6">
@@ -399,12 +407,13 @@ const ActivityDetail = () => {
 
             <div className="bg-white rounded-xl p-6 shadow-lg">
               <h3 className="font-semibold mb-4">Location</h3>
-              <div className="flex items-start gap-2">
+              <div className="flex items-start gap-2 mb-4">
                 <MapPin className="w-5 h-5 text-primary mt-1" />
                 <div>
                   <p className="font-medium">{activity.location}</p>
                 </div>
               </div>
+              <LocationMap address={activity.location} className="h-[200px] mt-2" />
             </div>
           </div>
         </div>
