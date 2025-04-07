@@ -11,10 +11,13 @@ import {
   LucideBarChart,
   Shield
 } from "lucide-react";
+import { MainNavigation } from "@/components/MainNavigation";
 
 export default function PartnerWithUs() {
   return (
     <div className="min-h-screen bg-white">
+      <MainNavigation />
+      
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-50 to-purple-50 py-20 px-4">
         <div className="container mx-auto max-w-5xl">

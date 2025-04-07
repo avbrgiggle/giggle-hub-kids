@@ -10,6 +10,7 @@ import { SearchBar } from "./components/SearchBar";
 import { AgeRangeSlider } from "./components/AgeRangeSlider";
 import { Categories } from "./components/Categories";
 import { ActivityCard } from "./components/ActivityCard";
+import { MainNavigation } from "@/components/MainNavigation";
 
 const CATEGORIES = [
   "All",
@@ -138,6 +139,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-muted/30 animate-fade-in">
+      <MainNavigation />
+      
       <div className="bg-accent text-white py-16">
         <div className="container">
           <div className="flex flex-col items-center mb-8">

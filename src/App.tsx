@@ -12,6 +12,10 @@ import ProfilePage from "@/pages/Profile/ProfilePage";
 import ActivityDetail from "@/pages/ActivityDetail";
 import NotFound from "@/pages/NotFound";
 import PartnerWithUs from "@/pages/Partner/PartnerWithUs";
+import AboutPage from "@/pages/About/AboutPage";
+import BlogPage from "@/pages/Blog/BlogPage";
+import PartnerInfoPage from "@/pages/Partners/PartnerInfoPage";
+import HowItWorksPage from "@/pages/HowItWorks/HowItWorksPage";
 
 // Provider Pages
 import ProviderDashboard from "@/pages/Provider/Dashboard";
@@ -43,6 +47,12 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/activities/:id" element={<ActivityDetail />} />
             <Route path="/partner-with-us" element={<PartnerWithUs />} />
+            
+            {/* New Pages */}
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/blog" element={<BlogPage />} />
+            <Route path="/partners" element={<PartnerInfoPage />} />
+            <Route path="/how-it-works" element={<HowItWorksPage />} />
             
             {/* Provider Routes - Protected with ProviderRoute component */}
             <Route path="/provider" element={<ProviderRoute><ProviderLayout /></ProviderRoute>}>
