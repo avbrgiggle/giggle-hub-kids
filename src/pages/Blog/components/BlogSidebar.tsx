@@ -49,7 +49,7 @@ export function BlogSidebar() {
             <Link to="/blog/summer-activities-guide" className="flex gap-3 group">
               <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded overflow-hidden">
                 <img 
-                  src="/placeholder.svg" 
+                  src="https://images.unsplash.com/photo-1596464716127-f2a82984de30" 
                   alt="Summer activities guide" 
                   className="w-full h-full object-cover"
                 />
@@ -66,7 +66,7 @@ export function BlogSidebar() {
             <Link to="/blog/choosing-the-right-activity" className="flex gap-3 group">
               <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded overflow-hidden">
                 <img 
-                  src="/placeholder.svg" 
+                  src="https://images.unsplash.com/photo-1544717302-de2939b7ef71" 
                   alt="Choosing the right activity" 
                   className="w-full h-full object-cover" 
                 />
@@ -83,7 +83,7 @@ export function BlogSidebar() {
             <Link to="/blog/benefits-of-extracurricular" className="flex gap-3 group">
               <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded overflow-hidden">
                 <img 
-                  src="/placeholder.svg" 
+                  src="https://images.unsplash.com/photo-1602030028438-4cf153cbae9e" 
                   alt="Benefits of extracurricular" 
                   className="w-full h-full object-cover"
                 />

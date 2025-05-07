@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -54,8 +53,12 @@ export default function HowItWorksPage() {
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="order-2 md:order-1">
                 <div className="p-1 bg-gray-100 rounded-xl">
-                  <div className="aspect-w-16 aspect-h-9 overflow-hidden rounded-lg bg-gray-200">
-                    <img src="/placeholder.svg" alt="Search interface" className="object-cover" />
+                  <div className="aspect-w-16 aspect-h-9 overflow-hidden rounded-lg">
+                    <img 
+                      src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158" 
+                      alt="Parent and child searching for activities together" 
+                      className="object-cover w-full h-full"
+                    />
                   </div>
                 </div>
               </div>
@@ -125,8 +128,12 @@ export default function HowItWorksPage() {
               </div>
               <div>
                 <div className="p-1 bg-gray-100 rounded-xl">
-                  <div className="aspect-w-16 aspect-h-9 overflow-hidden rounded-lg bg-gray-200">
-                    <img src="/placeholder.svg" alt="Booking interface" className="object-cover" />
+                  <div className="aspect-w-16 aspect-h-9 overflow-hidden rounded-lg">
+                    <img 
+                      src="https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7" 
+                      alt="Parent booking an activity on a tablet" 
+                      className="object-cover w-full h-full"
+                    />
                   </div>
                 </div>
               </div>
@@ -136,8 +143,12 @@ export default function HowItWorksPage() {
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="order-2 md:order-1">
                 <div className="p-1 bg-gray-100 rounded-xl">
-                  <div className="aspect-w-16 aspect-h-9 overflow-hidden rounded-lg bg-gray-200">
-                    <img src="/placeholder.svg" alt="Payment interface" className="object-cover" />
+                  <div className="aspect-w-16 aspect-h-9 overflow-hidden rounded-lg">
+                    <img 
+                      src="https://images.unsplash.com/photo-1498050108023-c5249f4df085" 
+                      alt="Secure payment process interface" 
+                      className="object-cover w-full h-full"
+                    />
                   </div>
                 </div>
               </div>
