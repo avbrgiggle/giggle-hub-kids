@@ -1,10 +1,15 @@
 
 {
   "nav": {
-    "login": "Cadastrar / Entrar"
+    "login": "Iniciar Sessão / Registar",
+    "about": "Sobre Nós",
+    "blog": "Blogue",
+    "howItWorks": "Como Funciona",
+    "forPartners": "Para Parceiros",
+    "myProfile": "O Meu Perfil"
   },
   "search": {
-    "activities": "Buscar atividades...",
+    "activities": "Procurar atividades...",
     "location": "Localização...",
     "filters": "Filtros"
   },
@@ -14,7 +19,7 @@
   },
   "categories": {
     "all": "Todos",
-    "sports": "Esportes",
+    "sports": "Desportos",
     "artsCrafts": "Artes e Artesanato",
     "education": "Educação",
     "music": "Música",
@@ -24,10 +29,14 @@
   },
   "activity": {
     "ages": "Idades",
-    "free": "Grátis",
+    "free": "Gratuito",
     "reviews": "avaliações",
-    "saved": "Atividade Salva!",
-    "savedDesc": "Você pode encontrá-la em suas atividades salvas."
+    "saved": "Atividade Guardada!",
+    "savedDesc": "Pode encontrá-la nas suas atividades guardadas.",
+    "duration": "h m"
+  },
+  "activities": {
+    "notFound": "Não foram encontradas atividades com os filtros selecionados."
   },
   "languages": {
     "en": "Inglês",

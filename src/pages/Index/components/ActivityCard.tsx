@@ -17,7 +17,7 @@ export const ActivityCard = ({ activity, onSave }: ActivityCardProps) => {
   const formatDuration = (duration: string) => {
     const [hours, minutes] = duration.split(':');
     if (!hours || !minutes) return duration;
-    return `${hours}h ${minutes}m`;
+    return `${hours}${t("activity.duration").split(" ")[0]} ${minutes}${t("activity.duration").split(" ")[1]}`;
   };
   
   return (

@@ -15,10 +15,12 @@ import {
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function MainNavigation() {
   const { user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { t } = useTranslation();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -53,7 +55,7 @@ export function MainNavigation() {
               <NavigationMenuItem>
                 <Link to="/about">
                   <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "text-white bg-transparent hover:bg-white/20")}>
-                    About Us
+                    {t("nav.about")}
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
@@ -62,7 +64,7 @@ export function MainNavigation() {
               <NavigationMenuItem>
                 <Link to="/blog">
                   <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "text-white bg-transparent hover:bg-white/20")}>
-                    Blog
+                    {t("nav.blog")}
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
@@ -71,7 +73,7 @@ export function MainNavigation() {
               <NavigationMenuItem>
                 <Link to="/how-it-works">
                   <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "text-white bg-transparent hover:bg-white/20")}>
-                    How It Works
+                    {t("nav.howItWorks")}
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
@@ -80,7 +82,7 @@ export function MainNavigation() {
               <NavigationMenuItem>
                 <Link to="/partners">
                   <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "text-white bg-transparent hover:bg-white/20")}>
-                    For Partners
+                    {t("nav.forPartners")}
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
@@ -93,15 +95,15 @@ export function MainNavigation() {
           {/* Auth Buttons */}
           {user ? (
             <Button asChild variant="outline" className="text-white border-white hover:bg-white/20">
-              <Link to="/profile">My Profile</Link>
+              <Link to="/profile">{t("nav.myProfile")}</Link>
             </Button>
           ) : (
             <div className="flex items-center space-x-2">
               <Button asChild variant="ghost" className="text-white hover:bg-white/20">
-                <Link to="/login">Sign In</Link>
+                <Link to="/login">{t("nav.login").split(" / ")[0]}</Link>
               </Button>
               <Button asChild variant="secondary" className="hover:bg-secondary/80">
-                <Link to="/signup">Sign Up</Link>
+                <Link to="/signup">{t("nav.login").split(" / ")[1]}</Link>
               </Button>
             </div>
           )}
@@ -116,28 +118,28 @@ export function MainNavigation() {
                 className="text-white px-4 py-2 rounded hover:bg-white/20"
                 onClick={() => setIsMenuOpen(false)}
               >
-                About Us
+                {t("nav.about")}
               </Link>
               <Link 
                 to="/blog" 
                 className="text-white px-4 py-2 rounded hover:bg-white/20"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Blog
+                {t("nav.blog")}
               </Link>
               <Link 
                 to="/how-it-works" 
                 className="text-white px-4 py-2 rounded hover:bg-white/20"
                 onClick={() => setIsMenuOpen(false)}
               >
-                How It Works
+                {t("nav.howItWorks")}
               </Link>
               <Link 
                 to="/partners" 
                 className="text-white px-4 py-2 rounded hover:bg-white/20"
                 onClick={() => setIsMenuOpen(false)}
               >
-                For Partners
+                {t("nav.forPartners")}
               </Link>
 
               <div className="pt-2 border-t border-white/20">
@@ -148,7 +150,7 @@ export function MainNavigation() {
                     className="w-full text-white border-white hover:bg-white/20"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <Link to="/profile">My Profile</Link>
+                    <Link to="/profile">{t("nav.myProfile")}</Link>
                   </Button>
                 ) : (
                   <div className="flex flex-col space-y-2">
@@ -158,7 +160,7 @@ export function MainNavigation() {
                       className="w-full text-white hover:bg-white/20"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      <Link to="/login">Sign In</Link>
+                      <Link to="/login">{t("nav.login").split(" / ")[0]}</Link>
                     </Button>
                     <Button 
                       asChild 
@@ -166,7 +168,7 @@ export function MainNavigation() {
                       className="w-full"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      <Link to="/signup">Sign Up</Link>
+                      <Link to="/signup">{t("nav.login").split(" / ")[1]}</Link>
                     </Button>
                   </div>
                 )}
