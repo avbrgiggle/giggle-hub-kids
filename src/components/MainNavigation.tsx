@@ -100,7 +100,7 @@ export function MainNavigation() {
               <Button asChild variant="ghost" className="text-white hover:bg-white/20">
                 <Link to="/login">Sign In</Link>
               </Button>
-              <Button asChild variant="outline" className="text-white border-white hover:bg-white/20">
+              <Button asChild variant="secondary" className="hover:bg-secondary/80">
                 <Link to="/signup">Sign Up</Link>
               </Button>
             </div>
@@ -162,8 +162,8 @@ export function MainNavigation() {
                     </Button>
                     <Button 
                       asChild 
-                      variant="outline" 
-                      className="w-full text-white border-white hover:bg-white/20"
+                      variant="secondary" 
+                      className="w-full"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <Link to="/signup">Sign Up</Link>
