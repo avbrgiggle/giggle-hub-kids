@@ -1,11 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import type { Activity } from "@/types/database.types";
-import { HeaderActions } from "./components/HeaderActions";
 import { SearchBar } from "./components/SearchBar";
 import { AgeRangeSlider } from "./components/AgeRangeSlider";
 import { Categories } from "./components/Categories";
@@ -144,7 +142,6 @@ const Index = () => {
       <div className="bg-accent text-white py-16">
         <div className="container">
           <div className="flex flex-col items-center mb-8">
-            <HeaderActions />
             <img 
               src="/lovable-uploads/ef0c0ba4-8c77-4009-8669-dec94b2ec9de.png" 
               alt="Allegrow" 
