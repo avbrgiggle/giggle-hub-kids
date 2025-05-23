@@ -12,7 +12,7 @@ import {
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 export const HeaderActions = () => {
   const { user } = useAuth();
@@ -23,6 +23,10 @@ export const HeaderActions = () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out"
+      });
       navigate("/");
     } catch (error: any) {
       toast({
@@ -47,6 +51,9 @@ export const HeaderActions = () => {
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => navigate("/profile")}>
               Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/provider/dashboard")}>
+              Provider Dashboard
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="w-4 h-4 mr-2" />
