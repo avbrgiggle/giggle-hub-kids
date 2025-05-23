@@ -37,18 +37,27 @@ export const TestParentButton = ({ loading, setLoading }: TestParentButtonProps)
           if (signUpError) throw signUpError;
           
           if (newUser) {
-            // Create parent profile
-            const { error: profileError } = await supabase
+            // Check if profile already exists before creating
+            const { data: existingProfile } = await supabase
               .from('profiles')
-              .update({ 
-                role: 'parent',
-                full_name: 'Test Parent',
-                location: 'Test Location',
-                phone: '123-456-7890'
-              })
-              .eq('id', newUser.id);
-            
-            if (profileError) throw profileError;
+              .select('id')
+              .eq('id', newUser.id)
+              .maybeSingle();
+              
+            // Only create profile if it doesn't exist
+            if (!existingProfile) {
+              const { error: profileError } = await supabase
+                .from('profiles')
+                .insert({ 
+                  id: newUser.id,
+                  role: 'parent',
+                  full_name: 'Test Parent',
+                  location: 'Test Location',
+                  phone: '123-456-7890'
+                });
+              
+              if (profileError) throw profileError;
+            }
             
             // Try login again
             const { error } = await supabase.auth.signInWithPassword({
