@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoginForm } from "./components/LoginForm";
 import { SignUpForm } from "./components/SignUpForm";
 import { TestProviderButton } from "./components/TestProviderButton";
+import { TestParentButton } from "./components/TestParentButton";
 import { PartnerLink } from "./components/PartnerLink";
 
 export default function Login() {
@@ -41,7 +42,13 @@ export default function Login() {
                 setLoading={setLoading}
               />
               
-              <TestProviderButton loading={loading} setLoading={setLoading} />
+              <div className="mt-4 pt-4 border-t">
+                <p className="text-sm text-center text-muted-foreground mb-2">For testing purposes</p>
+                <div className="space-y-2">
+                  <TestProviderButton loading={loading} setLoading={setLoading} />
+                  <TestParentButton loading={loading} setLoading={setLoading} />
+                </div>
+              </div>
             </TabsContent>
 
             <TabsContent value="signup">
@@ -63,4 +70,3 @@ export default function Login() {
       </div>
     </div>
   );
-}

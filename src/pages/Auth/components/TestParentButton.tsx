@@ -5,19 +5,19 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-type TestProviderButtonProps = {
+type TestParentButtonProps = {
   loading: boolean;
   setLoading: (loading: boolean) => void;
 };
 
-export const TestProviderButton = ({ loading, setLoading }: TestProviderButtonProps) => {
+export const TestParentButton = ({ loading, setLoading }: TestParentButtonProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const loginAsTestProvider = async () => {
+  const loginAsTestParent = async () => {
     setLoading(true);
     try {
-      const testEmail = "testprovider@example.com";
+      const testEmail = "testparent@example.com";
       const testPassword = "password123";
       
       // Check if account exists
@@ -37,12 +37,12 @@ export const TestProviderButton = ({ loading, setLoading }: TestProviderButtonPr
           if (signUpError) throw signUpError;
           
           if (newUser) {
-            // Create provider profile
+            // Create parent profile
             const { error: profileError } = await supabase
               .from('profiles')
               .update({ 
-                role: 'provider',
-                full_name: 'Test Provider',
+                role: 'parent',
+                full_name: 'Test Parent',
                 location: 'Test Location',
                 phone: '123-456-7890'
               })
@@ -65,10 +65,10 @@ export const TestProviderButton = ({ loading, setLoading }: TestProviderButtonPr
       
       toast({
         title: "Success",
-        description: "Logged in as test provider",
+        description: "Logged in as test parent",
       });
       
-      navigate("/provider/dashboard");
+      navigate("/profile");
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -84,11 +84,11 @@ export const TestProviderButton = ({ loading, setLoading }: TestProviderButtonPr
     <Button 
       type="button" 
       variant="outline" 
-      className="w-full" 
-      onClick={loginAsTestProvider}
+      className="w-full mt-2" 
+      onClick={loginAsTestParent}
       disabled={loading}
     >
-      {loading ? "Please wait..." : "Login as Test Provider"}
+      {loading ? "Please wait..." : "Login as Test Parent"}
     </Button>
   );
 };
