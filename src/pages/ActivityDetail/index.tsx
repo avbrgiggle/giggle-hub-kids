@@ -15,13 +15,10 @@ import {
   Loader2,
   Heart,
   Share2,
-  Facebook,
-  Instagram
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -88,7 +85,6 @@ const ActivityDetail = () => {
             avatar_url,
             phone,
             role,
-            description,
             location
           )
         `)
@@ -221,15 +217,16 @@ const ActivityDetail = () => {
     if (!user || !id) return;
     
     try {
+      // Direct SQL query with RPC call to check if the favorite exists
       const { data, error } = await supabase
-        .from("favorites")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("activity_id", id)
-        .single();
+        .rpc('check_favorite_exists', { 
+          p_user_id: user.id, 
+          p_activity_id: id 
+        });
       
-      if (error && error.code !== 'PGRST116') {
-        throw error;
+      if (error) {
+        console.error("Error checking favorite status:", error);
+        return;
       }
       
       setIsFavorite(!!data);
@@ -246,12 +243,12 @@ const ActivityDetail = () => {
     
     try {
       if (isFavorite) {
-        // Remove from favorites
+        // Remove from favorites using RPC call
         const { error } = await supabase
-          .from("favorites")
-          .delete()
-          .eq("user_id", user.id)
-          .eq("activity_id", id);
+          .rpc('remove_favorite', { 
+            p_user_id: user.id, 
+            p_activity_id: id 
+          });
           
         if (error) throw error;
         
@@ -261,12 +258,11 @@ const ActivityDetail = () => {
           description: "Removed from favorites",
         });
       } else {
-        // Add to favorites
+        // Add to favorites using RPC call
         const { error } = await supabase
-          .from("favorites")
-          .insert({
-            user_id: user.id,
-            activity_id: id,
+          .rpc('add_favorite', { 
+            p_user_id: user.id, 
+            p_activity_id: id 
           });
           
         if (error) throw error;
@@ -577,7 +573,7 @@ const ActivityDetail = () => {
                     <Link to={`/partners/${activity.provider_id}`} className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
                       <img
                         src={activity.provider.avatar_url || "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b"}
-                        alt={activity.provider.full_name}
+                        alt={activity.provider.full_name || "Provider"}
                         className="w-full h-full object-cover"
                       />
                     </Link>
@@ -589,7 +585,7 @@ const ActivityDetail = () => {
                     </div>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {activity.provider.description || "This provider offers various activities for children."}
+                    This provider offers various activities for children.
                   </p>
                   <Button 
                     variant="link" 
