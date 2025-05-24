@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Search, MapPin, Filter } from "lucide-react";
+import { Search, MapPin, Filter, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
@@ -22,6 +22,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 
 interface SearchBarProps {
   onSearch: (term: string) => void;
@@ -33,6 +35,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onLocationSearch
   const [searchInput, setSearchInput] = useState("");
   const [locationInput, setLocationInput] = useState("");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchInput(e.target.value);
@@ -73,67 +76,92 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onLocationSearch
         </PopoverTrigger>
         <PopoverContent className="w-80">
           <div className="space-y-4">
-            <h3 className="font-medium">{t("filters.title")}</h3>
+            <h3 className="font-medium">Filters</h3>
             
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="price">
-                <AccordionTrigger>{t("filters.price")}</AccordionTrigger>
+                <AccordionTrigger>Price</AccordionTrigger>
                 <AccordionContent>
                   <div className="flex flex-col space-y-2">
-                    <label className="flex items-center space-x-2">
-                      <input type="checkbox" className="rounded" />
-                      <span>{t("filters.free")}</span>
-                    </label>
-                    <label className="flex items-center space-x-2">
-                      <input type="checkbox" className="rounded" />
-                      <span>$1 - $25</span>
-                    </label>
-                    <label className="flex items-center space-x-2">
-                      <input type="checkbox" className="rounded" />
-                      <span>$25 - $50</span>
-                    </label>
-                    <label className="flex items-center space-x-2">
-                      <input type="checkbox" className="rounded" />
-                      <span>{t("filters.above")} $50</span>
-                    </label>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="free" />
+                      <label htmlFor="free" className="text-sm">Free</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="price-1" />
+                      <label htmlFor="price-1" className="text-sm">$1 - $25</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="price-2" />
+                      <label htmlFor="price-2" className="text-sm">$25 - $50</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="price-3" />
+                      <label htmlFor="price-3" className="text-sm">Above $50</label>
+                    </div>
                   </div>
                 </AccordionContent>
               </AccordionItem>
               
               <AccordionItem value="duration">
-                <AccordionTrigger>{t("filters.duration")}</AccordionTrigger>
+                <AccordionTrigger>Duration</AccordionTrigger>
                 <AccordionContent>
                   <div className="flex flex-col space-y-2">
                     <Select>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder={t("filters.selectDuration")} />
+                        <SelectValue placeholder="Select duration" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="0-1">&lt; 1 {t("filters.hour")}</SelectItem>
-                        <SelectItem value="1-2">1-2 {t("filters.hours")}</SelectItem>
-                        <SelectItem value="2-3">2-3 {t("filters.hours")}</SelectItem>
-                        <SelectItem value="3+">&gt; 3 {t("filters.hours")}</SelectItem>
+                        <SelectItem value="0-1">&lt; 1 hour</SelectItem>
+                        <SelectItem value="1-2">1-2 hours</SelectItem>
+                        <SelectItem value="2-3">2-3 hours</SelectItem>
+                        <SelectItem value="3+">&gt; 3 hours</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </AccordionContent>
               </AccordionItem>
               
-              <AccordionItem value="capacity">
-                <AccordionTrigger>{t("filters.capacity")}</AccordionTrigger>
+              <AccordionItem value="date">
+                <AccordionTrigger>Date</AccordionTrigger>
+                <AccordionContent>
+                  <CalendarComponent
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    className="pointer-events-auto"
+                  />
+                </AccordionContent>
+              </AccordionItem>
+              
+              <AccordionItem value="activityType">
+                <AccordionTrigger>Activity Type</AccordionTrigger>
                 <AccordionContent>
                   <div className="flex flex-col space-y-2">
-                    <Select>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder={t("filters.selectCapacity")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1-5">1-5 {t("filters.participants")}</SelectItem>
-                        <SelectItem value="6-10">6-10 {t("filters.participants")}</SelectItem>
-                        <SelectItem value="11-20">11-20 {t("filters.participants")}</SelectItem>
-                        <SelectItem value="20+">&gt; 20 {t("filters.participants")}</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="type-sports" />
+                      <label htmlFor="type-sports" className="text-sm">Sports</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="type-arts" />
+                      <label htmlFor="type-arts" className="text-sm">Arts & Crafts</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="type-stem" />
+                      <label htmlFor="type-stem" className="text-sm">STEM</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="type-nature" />
+                      <label htmlFor="type-nature" className="text-sm">Nature</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="type-music" />
+                      <label htmlFor="type-music" className="text-sm">Music</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="type-dance" />
+                      <label htmlFor="type-dance" className="text-sm">Dance</label>
+                    </div>
                   </div>
                 </AccordionContent>
               </AccordionItem>
@@ -145,10 +173,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onLocationSearch
                 className="mr-2"
                 onClick={() => setIsFiltersOpen(false)}
               >
-                {t("filters.cancel")}
+                Cancel
               </Button>
               <Button onClick={() => setIsFiltersOpen(false)}>
-                {t("filters.apply")}
+                Apply
               </Button>
             </div>
           </div>
