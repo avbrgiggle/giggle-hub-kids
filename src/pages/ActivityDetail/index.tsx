@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { 
@@ -11,7 +12,11 @@ import {
   Building,
   FileText,
   Mail,
-  Loader2
+  Loader2,
+  Heart,
+  Share2,
+  Facebook,
+  Instagram
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -30,7 +35,7 @@ import { ActivityHeader } from "./components/ActivityHeader";
 import { BookingDialog } from "./components/BookingDialog";
 import { MessageDialog } from "./components/MessageDialog";
 import { MessageList } from "./components/MessageList";
-import LocationMap from "@/components/LocationMap";
+import { ShareDialog } from "./components/ShareDialog";
 
 const ActivityDetail = () => {
   const { id } = useParams();
@@ -45,14 +50,17 @@ const ActivityDetail = () => {
   const [loading, setLoading] = useState(true);
   const [showBookingDialog, setShowBookingDialog] = useState(false);
   const [showMessageDialog, setShowMessageDialog] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
     fetchActivityDetails();
     if (user) {
       fetchChildren();
       fetchMessages();
+      checkIfFavorite();
     }
   }, [id, user]);
 
@@ -79,7 +87,9 @@ const ActivityDetail = () => {
             full_name,
             avatar_url,
             phone,
-            role
+            role,
+            description,
+            location
           )
         `)
         .eq("id", id)
@@ -207,6 +217,75 @@ const ActivityDetail = () => {
     }
   };
 
+  const checkIfFavorite = async () => {
+    if (!user || !id) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from("favorites")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("activity_id", id)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+      
+      setIsFavorite(!!data);
+    } catch (error: any) {
+      console.error("Error checking favorite status:", error);
+    }
+  };
+  
+  const toggleFavorite = async () => {
+    if (!user || !id) {
+      navigate("/login");
+      return;
+    }
+    
+    try {
+      if (isFavorite) {
+        // Remove from favorites
+        const { error } = await supabase
+          .from("favorites")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("activity_id", id);
+          
+        if (error) throw error;
+        
+        setIsFavorite(false);
+        toast({
+          title: "Success",
+          description: "Removed from favorites",
+        });
+      } else {
+        // Add to favorites
+        const { error } = await supabase
+          .from("favorites")
+          .insert({
+            user_id: user.id,
+            activity_id: id,
+          });
+          
+        if (error) throw error;
+        
+        setIsFavorite(true);
+        toast({
+          title: "Success",
+          description: "Added to favorites",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    }
+  };
+
   const handleBook = async () => {
     if (!user) {
       navigate("/login");
@@ -319,7 +398,58 @@ const ActivityDetail = () => {
       <div className="container max-w-6xl mx-auto -mt-20 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2 space-y-8">
-            <ActivityHeader activity={activity} />
+            <div className="bg-white rounded-xl p-6 shadow-lg">
+              <div className="flex items-center gap-4 mb-4">
+                {activity.provider && (
+                  <Link to={`/partners/${activity.provider_id}`} className="w-16 h-16 rounded-full overflow-hidden border border-muted cursor-pointer">
+                    <img
+                      src={activity.provider.avatar_url || "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b"}
+                      alt={activity.provider.full_name || "Provider"}
+                      className="w-full h-full object-cover"
+                    />
+                  </Link>
+                )}
+                <div className="flex-1">
+                  <Badge variant="secondary" className="mb-2">
+                    Ages {activity.age_range}
+                  </Badge>
+                  <div className="flex items-center justify-between">
+                    <h1 className="text-2xl font-bold">{activity.title}</h1>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={toggleFavorite}
+                      className={`${isFavorite ? 'text-red-500 hover:text-red-600' : 'text-muted-foreground hover:text-primary'}`}
+                    >
+                      <Heart className={`h-5 w-5 ${isFavorite ? 'fill-red-500' : ''}`} />
+                    </Button>
+                  </div>
+                  {activity.provider && (
+                    <Link to={`/partners/${activity.provider_id}`} className="text-muted-foreground hover:text-primary">
+                      {activity.provider.full_name}
+                    </Link>
+                  )}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                  <span>{activity.duration}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-muted-foreground" />
+                  <span>{activity.capacity} capacity</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-muted-foreground" />
+                  <span>{activity.location}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Building className="w-4 h-4 text-muted-foreground" />
+                  <span>{activity.category}</span>
+                </div>
+              </div>
+            </div>
 
             <Tabs defaultValue="description" className="bg-white rounded-xl shadow-lg">
               <TabsList className="w-full border-b">
@@ -327,6 +457,7 @@ const ActivityDetail = () => {
                 <TabsTrigger value="dates">Available Dates</TabsTrigger>
                 <TabsTrigger value="location">Location</TabsTrigger>
                 <TabsTrigger value="messages">Messages</TabsTrigger>
+                <TabsTrigger value="reviews">Reviews</TabsTrigger>
               </TabsList>
               
               <TabsContent value="description" className="p-6">
@@ -365,7 +496,12 @@ const ActivityDetail = () => {
               <TabsContent value="location" className="p-6">
                 <h3 className="text-lg font-semibold mb-4">Location</h3>
                 <p className="text-muted-foreground mb-4">{activity.location}</p>
-                <LocationMap address={activity.location} className="h-[300px] mt-4" />
+                <div className="h-[300px] w-full bg-muted flex items-center justify-center rounded-lg border">
+                  <p className="text-muted-foreground text-center p-4">
+                    Map integration has been temporarily removed. <br />
+                    Location: {activity.location}
+                  </p>
+                </div>
               </TabsContent>
               
               <TabsContent value="messages" className="p-6">
@@ -375,6 +511,34 @@ const ActivityDetail = () => {
                   isAuthenticated={!!user}
                   onNewMessage={() => setShowMessageDialog(true)}
                 />
+              </TabsContent>
+              
+              <TabsContent value="reviews" className="p-6">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-semibold">Reviews</h3>
+                    {user && (
+                      <Button variant="outline" size="sm">
+                        <Star className="w-4 h-4 mr-2" />
+                        Write a Review
+                      </Button>
+                    )}
+                  </div>
+                  
+                  <div className="text-center py-10">
+                    <Star className="w-12 h-12 mx-auto text-muted-foreground/40 mb-2" />
+                    <p className="text-muted-foreground">No reviews yet</p>
+                    {!user && (
+                      <Button 
+                        variant="outline"
+                        className="mt-4"
+                        onClick={() => navigate("/login")}
+                      >
+                        Log in to write a review
+                      </Button>
+                    )}
+                  </div>
+                </div>
               </TabsContent>
             </Tabs>
           </div>
@@ -406,14 +570,86 @@ const ActivityDetail = () => {
             </div>
 
             <div className="bg-white rounded-xl p-6 shadow-lg">
-              <h3 className="font-semibold mb-4">Location</h3>
-              <div className="flex items-start gap-2 mb-4">
-                <MapPin className="w-5 h-5 text-primary mt-1" />
-                <div>
-                  <p className="font-medium">{activity.location}</p>
-                </div>
+              <h3 className="font-semibold mb-4">Provider</h3>
+              {activity.provider && (
+                <>
+                  <div className="flex items-center gap-3 mb-4">
+                    <Link to={`/partners/${activity.provider_id}`} className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                      <img
+                        src={activity.provider.avatar_url || "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b"}
+                        alt={activity.provider.full_name}
+                        className="w-full h-full object-cover"
+                      />
+                    </Link>
+                    <div>
+                      <Link to={`/partners/${activity.provider_id}`} className="font-medium hover:text-primary">
+                        {activity.provider.full_name}
+                      </Link>
+                      <p className="text-sm text-muted-foreground">{activity.provider.location}</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {activity.provider.description || "This provider offers various activities for children."}
+                  </p>
+                  <Button 
+                    variant="link" 
+                    className="px-0 mt-2"
+                    asChild
+                  >
+                    <Link to={`/partners/${activity.provider_id}`}>
+                      View all activities
+                    </Link>
+                  </Button>
+                </>
+              )}
+            </div>
+            
+            <div className="bg-white rounded-xl p-6 shadow-lg">
+              <h3 className="font-semibold mb-4">Share this activity</h3>
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="rounded-full"
+                  onClick={() => setShowShareDialog(true)}
+                >
+                  <Share2 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="rounded-full text-blue-600"
+                  onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`, '_blank')}
+                >
+                  <Facebook className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="rounded-full text-pink-600"
+                  onClick={() => window.open(`https://www.instagram.com/`, '_blank')}
+                >
+                  <Instagram className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="rounded-full text-green-600"
+                  onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`Check out this activity: ${activity.title} at ${window.location.href}`)}`, '_blank')}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
+                  </svg>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="rounded-full text-purple-600"
+                  onClick={() => window.open(`mailto:?subject=Check out this activity&body=${activity.title} - ${window.location.href}`, '_blank')}
+                >
+                  <Mail className="h-4 w-4" />
+                </Button>
               </div>
-              <LocationMap address={activity.location} className="h-[200px] mt-2" />
             </div>
           </div>
         </div>
@@ -437,6 +673,13 @@ const ActivityDetail = () => {
         onMessageChange={setMessage}
         onSend={handleSendMessage}
         isAuthenticated={!!user}
+      />
+      
+      <ShareDialog
+        open={showShareDialog}
+        onOpenChange={setShowShareDialog}
+        activityTitle={activity.title}
+        activityUrl={window.location.href}
       />
     </div>
   );
