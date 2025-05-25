@@ -32,6 +32,7 @@ import { BookingDialog } from "./components/BookingDialog";
 import { MessageDialog } from "./components/MessageDialog";
 import { MessageList } from "./components/MessageList";
 import { ShareDialog } from "./components/ShareDialog";
+import LocationMap from "@/components/LocationMap";
 
 const ActivityDetail = () => {
   const { id } = useParams();
@@ -481,12 +482,7 @@ const ActivityDetail = () => {
               <TabsContent value="location" className="p-6">
                 <h3 className="text-lg font-semibold mb-4">Location</h3>
                 <p className="text-muted-foreground mb-4">{activity.location}</p>
-                <div className="h-[300px] w-full bg-muted flex items-center justify-center rounded-lg border">
-                  <p className="text-muted-foreground text-center p-4">
-                    Map integration has been temporarily removed. <br />
-                    Location: {activity.location}
-                  </p>
-                </div>
+                <LocationMap address={activity.location} className="h-[300px] mt-4" />
               </TabsContent>
               
               <TabsContent value="messages" className="p-6">
