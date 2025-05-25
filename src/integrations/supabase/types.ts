@@ -281,6 +281,35 @@ export type Database = {
           },
         ]
       }
+      favorites: {
+        Row: {
+          activity_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          activity_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          activity_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           booking_id: string | null
@@ -636,7 +665,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      add_favorite: {
+        Args: { p_user_id: string; p_activity_id: string }
+        Returns: boolean
+      }
+      check_favorite_exists: {
+        Args: { p_user_id: string; p_activity_id: string }
+        Returns: boolean
+      }
+      remove_favorite: {
+        Args: { p_user_id: string; p_activity_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

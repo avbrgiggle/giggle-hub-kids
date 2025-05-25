@@ -56,8 +56,7 @@ const ActivityDetail = () => {
     if (user) {
       fetchChildren();
       fetchMessages();
-      // Temporarily disable favorites until database is set up
-      // checkIfFavorite();
+      checkIfFavorite();
     }
   }, [id, user]);
 
@@ -213,10 +212,20 @@ const ActivityDetail = () => {
     }
   };
 
-  // Temporarily disable favorites functionality until database is set up
   const checkIfFavorite = async () => {
-    // Will be implemented after database migration
-    setIsFavorite(false);
+    if (!user || !id) return;
+    
+    try {
+      const { data, error } = await supabase.rpc('check_favorite_exists', {
+        p_user_id: user.id,
+        p_activity_id: id
+      });
+
+      if (error) throw error;
+      setIsFavorite(data || false);
+    } catch (error: any) {
+      console.error('Error checking favorite status:', error);
+    }
   };
   
   const toggleFavorite = async () => {
@@ -225,11 +234,41 @@ const ActivityDetail = () => {
       return;
     }
     
-    // Temporarily show a message that favorites will be available soon
-    toast({
-      title: "Coming Soon",
-      description: "Favorites feature will be available soon!",
-    });
+    try {
+      if (isFavorite) {
+        const { error } = await supabase.rpc('remove_favorite', {
+          p_user_id: user.id,
+          p_activity_id: id
+        });
+
+        if (error) throw error;
+        
+        setIsFavorite(false);
+        toast({
+          title: "Removed from favorites",
+          description: "Activity removed from your favorites",
+        });
+      } else {
+        const { error } = await supabase.rpc('add_favorite', {
+          p_user_id: user.id,
+          p_activity_id: id
+        });
+
+        if (error) throw error;
+        
+        setIsFavorite(true);
+        toast({
+          title: "Added to favorites",
+          description: "Activity added to your favorites",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    }
   };
 
   const handleBook = async () => {
