@@ -20,7 +20,7 @@ export const TestProviderButton = ({ loading, setLoading }: TestProviderButtonPr
       const testEmail = "testprovider@example.com";
       const testPassword = "password123";
       
-      // Check if account exists
+      // Try to sign in first
       const { data: { user }, error: signInError } = await supabase.auth.signInWithPassword({
         email: testEmail,
         password: testPassword,
@@ -32,44 +32,80 @@ export const TestProviderButton = ({ loading, setLoading }: TestProviderButtonPr
           const { data: { user: newUser }, error: signUpError } = await supabase.auth.signUp({
             email: testEmail,
             password: testPassword,
+            options: {
+              emailRedirectTo: `${window.location.origin}/`,
+            }
           });
           
           if (signUpError) throw signUpError;
           
           if (newUser) {
-            // Create provider profile
+            // Create provider profile using upsert
             const { error: profileError } = await supabase
               .from('profiles')
-              .update({ 
+              .upsert({ 
+                id: newUser.id,
                 role: 'provider',
                 full_name: 'Test Provider',
                 location: 'Test Location',
-                phone: '123-456-7890'
-              })
-              .eq('id', newUser.id);
+                phone: '123-456-7890',
+                username: 'testprovider'
+              });
             
             if (profileError) throw profileError;
             
-            // Try login again
-            const { error } = await supabase.auth.signInWithPassword({
-              email: testEmail,
-              password: testPassword,
+            toast({
+              title: "Success",
+              description: "Test provider account created. Please check your email for verification.",
             });
-            
-            if (error) throw error;
+            return;
           }
         } else {
           throw signInError;
         }
       }
       
-      toast({
-        title: "Success",
-        description: "Logged in as test provider",
-      });
-      
-      navigate("/provider/dashboard");
+      if (user) {
+        // Ensure the user has a provider profile
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        
+        if (!profile) {
+          // Create profile if it doesn't exist
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert({ 
+              id: user.id,
+              role: 'provider',
+              full_name: 'Test Provider',
+              location: 'Test Location',
+              phone: '123-456-7890',
+              username: 'testprovider'
+            });
+          
+          if (profileError) throw profileError;
+        } else if (profile.role !== 'provider') {
+          // Update role to provider if needed
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ role: 'provider' })
+            .eq('id', user.id);
+          
+          if (updateError) throw updateError;
+        }
+        
+        toast({
+          title: "Success",
+          description: "Logged in as test provider",
+        });
+        
+        navigate("/provider/dashboard");
+      }
     } catch (error: any) {
+      console.error("Test provider login error:", error);
       toast({
         variant: "destructive",
         title: "Error",
