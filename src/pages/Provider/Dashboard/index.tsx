@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ActivitiesTab from "./components/ActivitiesTab";
 import StudentsTab from "./components/StudentsTab";
@@ -10,6 +11,15 @@ import ProfileTab from "./components/ProfileTab";
 
 export default function ProviderDashboard() {
   const [activeTab, setActiveTab] = useState("activities");
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname === "/provider/analytics") {
+      setActiveTab("analytics");
+    } else if (location.pathname === "/provider/dashboard" || location.pathname === "/provider") {
+      setActiveTab("activities");
+    }
+  }, [location.pathname]);
 
   return (
     <div className="container mx-auto py-8 px-4">

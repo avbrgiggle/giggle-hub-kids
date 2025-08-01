@@ -67,6 +67,7 @@ function App() {
               <Route path="payments" element={<PaymentManagement />} />
               <Route path="attendance" element={<AttendanceTracking />} />
               <Route path="billing" element={<BillingManagement />} />
+              <Route path="analytics" element={<ProviderDashboard />} />
             </Route>
             
             {/* Admin Routes */}
