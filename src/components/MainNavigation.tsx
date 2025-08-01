@@ -1,5 +1,5 @@
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,18 +12,46 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, UserCircle, LogOut, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export function MainNavigation() {
   const { user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out"
+      });
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    }
   };
 
   return (
@@ -94,9 +122,24 @@ export function MainNavigation() {
 
           {/* Auth Buttons */}
           {user ? (
-            <Button asChild variant="outline" className="text-white border-white hover:bg-white/20">
-              <Link to="/profile">{t("nav.myProfile").replace("nav.", "")}</Link>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="text-white border-white hover:bg-white/20">
+                  <UserCircle className="w-4 h-4 mr-2" />
+                  {t("nav.myProfile").replace("nav.", "")}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => navigate("/profile")}>
+                  <User className="w-4 h-4 mr-2" />
+                  {t("nav.myProfile").replace("nav.", "")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <div className="flex items-center space-x-2">
               <Button asChild variant="ghost" className="text-white hover:bg-white/20">
@@ -144,14 +187,30 @@ export function MainNavigation() {
 
               <div className="pt-2 border-t border-white/20">
                 {user ? (
-                  <Button 
-                    asChild 
-                    variant="outline" 
-                    className="w-full text-white border-white hover:bg-white/20"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <Link to="/profile">{t("nav.myProfile").replace("nav.", "")}</Link>
-                  </Button>
+                  <div className="flex flex-col space-y-2">
+                    <Button 
+                      asChild 
+                      variant="outline" 
+                      className="w-full text-white border-white hover:bg-white/20"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Link to="/profile">
+                        <User className="w-4 h-4 mr-2" />
+                        {t("nav.myProfile").replace("nav.", "")}
+                      </Link>
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full text-white hover:bg-white/20"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        handleLogout();
+                      }}
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </Button>
+                  </div>
                 ) : (
                   <div className="flex flex-col space-y-2">
                     <Button 
