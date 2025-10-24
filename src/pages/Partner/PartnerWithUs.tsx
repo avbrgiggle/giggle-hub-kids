@@ -24,11 +24,11 @@ export default function PartnerWithUs() {
           <div className="flex flex-col items-center text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-primary mb-6">Partner With Us</h1>
             <p className="text-lg md:text-xl text-gray-700 max-w-3xl mb-10">
-              Join our platform to showcase your activities and connect with parents looking for quality experiences for their children.
+              Discover how Allegrow can help you grow your activity business. Let's schedule a call to discuss your needs and explore the possibilities.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button asChild size="lg" className="px-8">
-                <Link to="/signup?tab=provider-request">Apply to Join</Link>
+                <Link to="/signup?tab=provider-request">Get in Touch & Book a Meeting</Link>
               </Button>
               <Button asChild variant="outline" size="lg">
                 <Link to="/login">Already a Partner?</Link>
@@ -148,9 +148,9 @@ export default function PartnerWithUs() {
                 </div>
                 <div className="hidden md:block absolute top-8 left-full w-full h-0.5 bg-gray-200 -z-10"></div>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Apply</h3>
+              <h3 className="text-xl font-semibold mb-2">Share Your Info</h3>
               <p className="text-gray-600">
-                Submit your application with details about your activities and business.
+                Fill out a simple form with details about your activities and business.
               </p>
             </div>
             
@@ -161,9 +161,9 @@ export default function PartnerWithUs() {
                 </div>
                 <div className="hidden md:block absolute top-8 left-full w-full h-0.5 bg-gray-200 -z-10"></div>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Get Verified</h3>
+              <h3 className="text-xl font-semibold mb-2">Book a Meeting</h3>
               <p className="text-gray-600">
-                Our team reviews your application and approves your provider account.
+                Schedule a call with our team to learn more and discuss how we can help you grow.
               </p>
             </div>
             
@@ -173,16 +173,16 @@ export default function PartnerWithUs() {
                   <span className="text-2xl font-bold text-primary">3</span>
                 </div>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Start Growing</h3>
+              <h3 className="text-xl font-semibold mb-2">Get Started</h3>
               <p className="text-gray-600">
-                Create listings, manage bookings, and connect with parents seeking your services.
+                Once approved, you'll gain access to our platform and start connecting with families.
               </p>
             </div>
           </div>
           
           <div className="mt-16 text-center">
             <Button asChild size="lg" className="px-10">
-              <Link to="/signup?tab=provider-request">Apply Now</Link>
+              <Link to="/signup?tab=provider-request">Request More Information</Link>
             </Button>
           </div>
         </div>
@@ -226,13 +226,13 @@ export default function PartnerWithUs() {
       {/* CTA */}
       <section className="py-20 px-4 bg-primary/10">
         <div className="container mx-auto max-w-4xl text-center">
-          <h2 className="text-3xl font-bold mb-6">Ready to Grow Your Activity Business?</h2>
+          <h2 className="text-3xl font-bold mb-6">Ready to Learn More?</h2>
           <p className="text-lg text-gray-700 mb-8 max-w-2xl mx-auto">
-            Join our community of trusted providers and connect with families looking for exactly what you offer.
+            Let's discuss how Allegrow can help you reach more families and grow your business. Fill out our form to get in touch and schedule a meeting.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Button asChild size="lg" className="px-8">
-              <Link to="/signup?tab=provider-request">Apply to Join</Link>
+              <Link to="/signup?tab=provider-request">Get in Touch & Book a Meeting</Link>
             </Button>
             <Button asChild variant="outline" size="lg">
               <Link to="/login">Already a Partner?</Link>

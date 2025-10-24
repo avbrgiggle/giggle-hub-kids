@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 // Auth & Public Pages
 import Login from "@/pages/Auth/Login";
 import Signup from "@/pages/Auth/Signup";
+import LandingPage from "@/pages/Landing/LandingPage";
 import Index from "@/pages/Index/index";
 import ProfilePage from "@/pages/Profile/ProfilePage";
 import ActivityDetail from "@/pages/ActivityDetail";
@@ -41,7 +42,8 @@ function App() {
         <Router>
           <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/activities" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/profile" element={<ProfilePage />} />

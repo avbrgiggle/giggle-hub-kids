@@ -79,6 +79,15 @@ export function MainNavigation() {
         <div className="hidden md:flex items-center space-x-1">
           <NavigationMenu>
             <NavigationMenuList>
+              {/* Find Activities */}
+              <NavigationMenuItem>
+                <Link to="/activities">
+                  <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "text-white bg-transparent hover:bg-white/20")}>
+                    Find Activities
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+
               {/* About */}
               <NavigationMenuItem>
                 <Link to="/about">
@@ -156,6 +165,13 @@ export function MainNavigation() {
         {isMenuOpen && (
           <div className="absolute top-16 left-0 right-0 bg-accent z-50 md:hidden p-4 shadow-lg">
             <div className="flex flex-col space-y-4">
+              <Link 
+                to="/activities" 
+                className="text-white px-4 py-2 rounded hover:bg-white/20"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Find Activities
+              </Link>
               <Link 
                 to="/about" 
                 className="text-white px-4 py-2 rounded hover:bg-white/20"
