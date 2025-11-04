@@ -1,6 +1,9 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 import { LoginForm } from "./components/LoginForm";
 import { SignUpForm } from "./components/SignUpForm";
 import { TestProviderButton } from "./components/TestProviderButton";
@@ -12,10 +15,20 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<"parent" | "provider">("parent");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
       <div className="max-w-md w-full space-y-8">
+        <Button 
+          variant="ghost" 
+          size="sm"
+          onClick={() => navigate("/")}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Home
+        </Button>
         <div className="text-center">
           <h2 className="text-3xl font-bold">Welcome</h2>
           <p className="text-muted-foreground mt-2">

@@ -1,7 +1,8 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -21,10 +22,21 @@ import { useSignup } from "./hooks/useSignup";
 export default function Signup() {
   const { formData, loading, providerCodeValid, handleInputChange, handleValidProviderCode, handleSubmit } = useSignup();
   const [signupTab, setSignupTab] = useState("parent");
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-muted/30 py-8 px-4">
-      <Card className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto space-y-4">
+        <Button 
+          variant="ghost" 
+          size="sm"
+          onClick={() => navigate("/")}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Home
+        </Button>
+      <Card className="w-full">
         <CardHeader className="space-y-2">
           <CardTitle className="text-2xl text-center">Create Account</CardTitle>
           <CardDescription className="text-center">
@@ -74,6 +86,7 @@ export default function Signup() {
           <PartnerLink />
         </CardFooter>
       </Card>
+      </div>
     </div>
   );
 }
