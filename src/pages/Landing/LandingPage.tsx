@@ -50,8 +50,8 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 relative">
           <div className="max-w-4xl mx-auto text-center space-y-8">
             <div className="space-y-4 animate-fade-in">
-              <h1 className="text-5xl md:text-7xl font-bold text-primary-foreground">
-                Allegrow
+              <h1 className="text-5xl md:text-7xl font-luckiest text-primary-foreground tracking-wider">
+                ALLEGROW
               </h1>
               <div className="h-1 w-24 mx-auto bg-primary-foreground/50 rounded-full" />
             </div>
