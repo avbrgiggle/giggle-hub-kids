@@ -4,6 +4,7 @@ import { MainNavigation } from "@/components/MainNavigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { useTranslation } from "react-i18next";
 import { 
   Search, 
   Users, 
@@ -20,6 +21,7 @@ export default function LandingPage() {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,24 +59,24 @@ export default function LandingPage() {
             </div>
             
             <h2 className="text-3xl md:text-5xl font-bold text-primary-foreground/95 animate-fade-in leading-tight">
-              Discover Amazing Activities for Your Children
+              {t("landing.hero.title")}
             </h2>
             
             <p className="text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto animate-fade-in">
-              Connect with trusted providers and find the perfect activities to help your children grow and thrive
+              {t("landing.hero.subtitle")}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4 animate-fade-in">
               <Link to="/activities">
                 <Button size="lg" variant="secondary" className="w-full sm:w-auto text-base px-8">
                   <Search className="mr-2 h-5 w-5" />
-                  Explore Activities
+                  {t("landing.hero.exploreActivities")}
                 </Button>
               </Link>
               <Link to="/partner-with-us">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto text-base px-8 bg-primary-foreground/10 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/20">
                   <Users className="mr-2 h-5 w-5" />
-                  Partner With Us
+                  {t("landing.hero.partnerWithUs")}
                 </Button>
               </Link>
             </div>

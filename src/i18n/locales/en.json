@@ -1,7 +1,20 @@
 
 {
   "nav": {
-    "login": "Sign Up / Log In"
+    "login": "Sign Up / Log In",
+    "about": "About Us",
+    "blog": "Blog",
+    "howItWorks": "How It Works",
+    "forPartners": "For Partners",
+    "myProfile": "My Profile"
+  },
+  "landing": {
+    "hero": {
+      "title": "Discover Amazing Activities for Your Children",
+      "subtitle": "Connect with trusted providers and find the perfect activities to help your children grow and thrive",
+      "exploreActivities": "Explore Activities",
+      "partnerWithUs": "Partner With Us"
+    }
   },
   "search": {
     "activities": "Search activities...",

@@ -8,6 +8,14 @@
     "forPartners": "Para Parceiros",
     "myProfile": "O Meu Perfil"
   },
+  "landing": {
+    "hero": {
+      "title": "Descubra Atividades Incríveis para os Seus Filhos",
+      "subtitle": "Conecte-se com fornecedores confiáveis e encontre as atividades perfeitas para ajudar os seus filhos a crescer e prosperar",
+      "exploreActivities": "Explorar Atividades",
+      "partnerWithUs": "Seja Parceiro"
+    }
+  },
   "search": {
     "activities": "Procurar atividades...",
     "location": "Localização...",

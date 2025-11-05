@@ -1,7 +1,20 @@
 
 {
   "nav": {
-    "login": "Registrarse / Iniciar sesión"
+    "login": "Registrarse / Iniciar sesión",
+    "about": "Sobre Nosotros",
+    "blog": "Blog",
+    "howItWorks": "Cómo Funciona",
+    "forPartners": "Para Socios",
+    "myProfile": "Mi Perfil"
+  },
+  "landing": {
+    "hero": {
+      "title": "Descubre Actividades Increíbles para tus Hijos",
+      "subtitle": "Conéctate con proveedores de confianza y encuentra las actividades perfectas para ayudar a tus hijos a crecer y prosperar",
+      "exploreActivities": "Explorar Actividades",
+      "partnerWithUs": "Asóciate con Nosotros"
+    }
   },
   "search": {
     "activities": "Buscar actividades...",
